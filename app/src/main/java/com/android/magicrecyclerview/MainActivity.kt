@@ -98,7 +98,7 @@ fun VerticalList(list: List<Item>) {
             Log.i("Mshari", "position:${position}")
             listItem = listItem.filter { it != item }
         },
-        swipeDirection = SwipeDirection.RIGHT_TO_LEFT,
+        swipeDirection = SwipeDirection.LEFT_TO_RIGHT,
 
         )
 }

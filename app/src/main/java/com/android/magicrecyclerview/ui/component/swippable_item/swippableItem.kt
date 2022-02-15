@@ -1,6 +1,7 @@
 package com.android.magicrecyclerview.ui.component.magic_recyclerview
 
 
+import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
@@ -14,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
@@ -62,6 +64,8 @@ fun SwappableItem(
             LocalConfiguration.current.screenWidthDp.dp.toPx()
         }
 
+        val middleSwipeItem = remember { mutableStateOf(0) }
+
         val anchors = hashMapOf(0f to SwipeDirection.NON)
         if (swipeDirection == SwipeDirection.LEFT_TO_RIGHT) {
             anchors[maxWidthInPx] = SwipeDirection.LEFT_TO_RIGHT
@@ -82,6 +86,10 @@ fun SwappableItem(
             },
             modifier = Modifier
                 .fillMaxWidth()
+                .onGloballyPositioned { coordinates ->
+                    middleSwipeItem.value = coordinates.size.width / 2
+                    Log.i("Mshari", middleSwipeItem.value.toString())
+                }
                 .constrainAs(actionCardRef) {
                     top.linkTo(mainCardRef.top)
                     bottom.linkTo(mainCardRef.bottom)
@@ -95,11 +103,21 @@ fun SwappableItem(
                 .fillMaxWidth()
                 .offset {
                     val offset = swappableState.offset.value.roundToInt()
-                    if (swipeDirection == SwipeDirection.LEFT_TO_RIGHT && offset > 0)
-                        IntOffset(offset, 0)
-                    else if (swipeDirection == SwipeDirection.RIGHT_TO_LEFT && offset < 0)
-                        IntOffset(offset, 0)
-                    else IntOffset(0, 0)
+                    Log.i("Mshari offset", offset.toString())
+                    if (swipeDirection == SwipeDirection.LEFT_TO_RIGHT && offset > 0) {
+                        if (offset < middleSwipeItem.value)
+                            IntOffset(offset, 0)
+                        else
+                            IntOffset(middleSwipeItem.value, 0)
+                    } else if (swipeDirection == SwipeDirection.RIGHT_TO_LEFT && offset < 0) {
+
+                        if (offset * -1 <= middleSwipeItem.value)
+                            IntOffset(offset, 0)
+                        else {
+                            Log.i("Mshari middle", middleSwipeItem.value.toString())
+                            IntOffset(-middleSwipeItem.value, 0)
+                        }
+                    } else IntOffset(0, 0)
                 }
                 .swipeable(
                     state = swappableState,
