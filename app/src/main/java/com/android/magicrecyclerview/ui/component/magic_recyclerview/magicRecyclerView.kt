@@ -8,12 +8,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.android.magicrecyclerview.Constants.COLUMN_COUNT
 import com.android.magicrecyclerview.Constants.PADDING_BETWEEN_ITEMS
 import com.android.magicrecyclerview.Constants.PADDING_HORIZONTAL
 import com.android.magicrecyclerview.Constants.PADDING_VERTICAL
+import com.android.magicrecyclerview.model.Action
+import com.android.magicrecyclerview.ui.component.action_cards.EndActionCard
+import com.android.magicrecyclerview.ui.component.action_cards.StartActionCard
 import com.android.magicrecyclerview.ui.component.swippable_item.SwipeDirection
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -26,19 +31,61 @@ fun <T> VerticalRecyclerView(
     views: @Composable LazyItemScope.(item: T) -> Unit,
     dividerView: (@Composable () -> Unit)? = null,
     emptyView: (@Composable () -> Unit)? = null,
-    swipeItem: (@Composable () -> Unit)? = null,
+    startActions: List<Action> = listOf(),
+    endActions: List<Action> = listOf(),
+    swipeModifier: Modifier = Modifier,
+    startBackgroundColor: Color = Color.Transparent,
+    endBackgroundColor: Color = Color.Transparent,
     isRefreshing: Boolean = false,
     onRefresh: () -> Unit = {},
     paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
     paddingVertical: Float = PADDING_VERTICAL,
     paddingHorizontal: Float = PADDING_HORIZONTAL,
     scrollTo: Int = 0,
-    onSwiped: ((item: T, position: Int) -> Unit)? = null,
-    swipeDirection: SwipeDirection = SwipeDirection.NON,
+    onStartSwiped: ((item: T, position: Int) -> Unit)? = null,
+    onEndSwiped: ((item: T, position: Int) -> Unit)? = null,
 ) {
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val isArabic =  LocalLayoutDirection.current == LayoutDirection.Rtl
+    var startSwipeItem : (@Composable () -> Unit)? = null
+    var endSwipeItem : (@Composable () -> Unit)? = null
+
+    if (isArabic){
+
+        if (startActions.isNotEmpty())
+        startSwipeItem = { EndActionCard(
+            modifier = swipeModifier,
+            backgroundColor = startBackgroundColor,
+            actions = startActions
+        )}
+
+        if (endActions.isNotEmpty())
+        endSwipeItem = { StartActionCard(
+            modifier = swipeModifier,
+            backgroundColor = endBackgroundColor,
+            actions = endActions
+        )}
+    }else{
+
+        if (startActions.isNotEmpty())
+        startSwipeItem = { StartActionCard(
+            modifier = swipeModifier,
+            backgroundColor = endBackgroundColor,
+            actions = endActions
+        )
+        }
+
+        if (endActions.isNotEmpty())
+        endSwipeItem = { EndActionCard(
+            modifier = swipeModifier,
+            backgroundColor = startBackgroundColor,
+            actions = startActions
+        )
+        }
+
+    }
     if (list.isNotEmpty()) {
         SwipeRefresh(
             state = rememberSwipeRefreshState(isRefreshing),
@@ -57,11 +104,16 @@ fun <T> VerticalRecyclerView(
                 itemsIndexed(list) { index, item ->
                     SwappableItem(
                         mainItem = { views(item) },
-                        swipeItem = { swipeItem?.invoke() },
-                        swipeDirection = swipeDirection,
-                        onSwiped = {
-                            onSwiped?.invoke(item, index)
-                        })
+                        startSwipeItem = { startSwipeItem?.invoke() },
+                        endSwipeItem = { endSwipeItem?.invoke() },
+                        onStartSwiped = {
+                            onStartSwiped?.invoke(item, index)
+                        },
+
+                        onEndSwiped = {
+                            onEndSwiped?.invoke(item, index)
+                        },
+                    )
                     if (index != list.lastIndex) {
                         Surface(modifier = Modifier.padding(top = paddingBetweenItems.dp)) {
                             dividerView?.invoke()
@@ -186,9 +238,3 @@ fun emptyView(view: (@Composable () -> Unit)? = null) {
     }
 }
 
-@ExperimentalFoundationApi
-@Preview(showBackground = true)
-@Composable
-fun MagicRecyclerViewPreview() {
-
-}

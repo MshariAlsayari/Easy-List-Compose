@@ -18,8 +18,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -33,10 +35,11 @@ import kotlin.math.roundToInt
 @Composable
 fun SwappableItem(
     mainItem: @Composable () -> Unit,
-    swipeItem: @Composable () -> Unit,
+    startSwipeItem: (@Composable () -> Unit)? = null,
+    endSwipeItem: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier,
-    onSwiped: () -> Unit = {},
-    swipeDirection: SwipeDirection = SwipeDirection.RIGHT_TO_LEFT,
+    onStartSwiped: () -> Unit = {},
+    onEndSwiped: () -> Unit = {},
     animationSpec: AnimationSpec<Float> = tween(Constants.SWIPE_ANIMATION_DURATION),
     thresholds: (from: SwipeDirection, to: SwipeDirection) -> ThresholdConfig = { _, _ ->
         FractionalThreshold(
@@ -55,8 +58,9 @@ fun SwappableItem(
         val coroutineScope = rememberCoroutineScope()
 
         /* Tracks if swipeItem action to be shown */
-        val swipeItemVisible = remember { mutableStateOf(true) }
+        val swipeItemVisible = remember { mutableStateOf(false) }
 
+        val isArabic =  LocalLayoutDirection.current == LayoutDirection.Rtl
         /* Disable swipe when card is animating back to default position */
         val swipeEnabled = remember { mutableStateOf(true) }
 
@@ -67,10 +71,10 @@ fun SwappableItem(
         val middleSwipeItem = remember { mutableStateOf(0) }
 
         val anchors = hashMapOf(0f to SwipeDirection.NON)
-        if (swipeDirection == SwipeDirection.LEFT_TO_RIGHT) {
+        if (endSwipeItem != null) {
             anchors[maxWidthInPx] = SwipeDirection.LEFT_TO_RIGHT
         }
-        if (swipeDirection == SwipeDirection.RIGHT_TO_LEFT) {
+        if (startSwipeItem != null) {
             anchors[-maxWidthInPx] = SwipeDirection.RIGHT_TO_LEFT
 
         }
@@ -81,14 +85,15 @@ fun SwappableItem(
             color = Color.Transparent,
             content = {
                 if (swipeItemVisible.value) {
-                    swipeItem()
+                    startSwipeItem?.invoke()
+                } else {
+                    endSwipeItem?.invoke()
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .onGloballyPositioned { coordinates ->
                     middleSwipeItem.value = coordinates.size.width / 2
-                    Log.i("Mshari", middleSwipeItem.value.toString())
                 }
                 .constrainAs(actionCardRef) {
                     top.linkTo(mainCardRef.top)
@@ -102,22 +107,30 @@ fun SwappableItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .offset {
-                    val offset = swappableState.offset.value.roundToInt()
-                    Log.i("Mshari offset", offset.toString())
-                    if (swipeDirection == SwipeDirection.LEFT_TO_RIGHT && offset > 0) {
-                        if (offset < middleSwipeItem.value)
-                            IntOffset(offset, 0)
-                        else
-                            IntOffset(middleSwipeItem.value, 0)
-                    } else if (swipeDirection == SwipeDirection.RIGHT_TO_LEFT && offset < 0) {
+                    var offset = swappableState.offset.value.roundToInt()
+                    if (offset < 0 && startSwipeItem == null) offset = 0
+                    if (offset > 0 && endSwipeItem == null) offset = 0
+                    Log.i("Mshari first", offset.toString())
+                    if (offset < 0){
+                        if(offset*-1 >= middleSwipeItem.value)
+                            offset = -middleSwipeItem.value
+                    }
 
-                        if (offset * -1 <= middleSwipeItem.value)
-                            IntOffset(offset, 0)
-                        else {
-                            Log.i("Mshari middle", middleSwipeItem.value.toString())
-                            IntOffset(-middleSwipeItem.value, 0)
-                        }
-                    } else IntOffset(0, 0)
+                    if (offset > 0){
+                        if(offset >= middleSwipeItem.value)
+                            offset = middleSwipeItem.value
+                    }
+                   Log.i("Mshari second", offset.toString())
+
+
+                    if (isArabic){
+                        IntOffset(-offset, 0)
+                    }else{
+                        IntOffset(offset, 0)
+                    }
+
+
+
                 }
                 .swipeable(
                     state = swappableState,
@@ -132,29 +145,44 @@ fun SwappableItem(
                     bottom.linkTo(parent.bottom)
                 }) {
 
-            if (swappableState.currentValue == SwipeDirection.LEFT_TO_RIGHT && !swappableState.isAnimationRunning) {
-                onSwiped()
-                //   swipeItemVisible.value = false
-                coroutineScope.launch {
-                    swipeEnabled.value = false
-                    swappableState.animateTo(SwipeDirection.NON)
-                    swipeEnabled.value = true
-                }
-            } else if (swappableState.currentValue == SwipeDirection.RIGHT_TO_LEFT && !swappableState.isAnimationRunning) {
-                onSwiped()
-                // swipeItemVisible.value = false
-                coroutineScope.launch {
-                    swipeEnabled.value = false
-                    swappableState.animateTo(SwipeDirection.NON)
-                    swipeEnabled.value = true
-                }
-            }
+//            if (swappableState.currentValue == SwipeDirection.LEFT_TO_RIGHT && !swappableState.isAnimationRunning) {
+//                if (isArabic){
+//                    onEndSwiped()
+//                }else{
+//                    onStartSwiped()
+//                }
+//
+//                   swipeItemVisible.value = false
+//                coroutineScope.launch {
+//                    swipeEnabled.value = false
+//                    swappableState.animateTo(SwipeDirection.LEFT_TO_RIGHT)
+//                    swipeEnabled.value = true
+//                }
+//            } else if (swappableState.currentValue == SwipeDirection.RIGHT_TO_LEFT && !swappableState.isAnimationRunning) {
+//                if (isArabic){
+//                    onStartSwiped()
+//                }else{
+//                    onEndSwiped()
+//                }
+//                 swipeItemVisible.value = false
+//                coroutineScope.launch {
+//                    swipeEnabled.value = false
+//                    swappableState.animateTo(SwipeDirection.RIGHT_TO_LEFT)
+//                    swipeEnabled.value = true
+//                }
+//            }
+
+            swipeItemVisible.value = swappableState.offset.value <= 0
+
+
 
 
 
             mainItem()
         }
     }
-
-
 }
+
+
+
+

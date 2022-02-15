@@ -3,6 +3,7 @@ package com.android.magicrecyclerview
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -13,9 +14,11 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.android.magicrecyclerview.model.Action
 import com.android.magicrecyclerview.model.Item
-import com.android.magicrecyclerview.ui.component.action_cards.DeleteCard
 import com.android.magicrecyclerview.ui.component.magic_recyclerview.*
 import com.android.magicrecyclerview.ui.component.swippable_item.SwipeDirection
 import com.android.magicrecyclerview.ui.theme.MagicRecyclerViewTheme
@@ -79,6 +82,7 @@ class MainActivity : ComponentActivity() {
 fun VerticalList(list: List<Item>) {
     var isRefreshing by remember { mutableStateOf(false) }
     var listItem by remember { mutableStateOf(list) }
+    val context = LocalContext.current
     VerticalRecyclerView(
         list = listItem,
         views = { magicRecyclerViewItem(item = it) },
@@ -92,14 +96,54 @@ fun VerticalList(list: List<Item>) {
                 listItem = DataProvider.itemList
             }, 1000)
         },
-        swipeItem = { DeleteCard() },
-        onSwiped = { item, position ->
+        startActions = listOf(
+            Action("Delete1", R.drawable.ic_edit,
+            onClicked = {
+                Toast.makeText(
+                    context,
+                    "Delete1",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }), Action("Delete1", R.drawable.ic_edit,
+                onClicked = {
+                    Toast.makeText(
+                        context,
+                        "Delete2",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                })
+        ),
+        endActions = listOf(
+            Action("favorite", R.drawable.ic_favorite,
+                onClicked = {
+                    Toast.makeText(
+                        context,
+                        "favorite1",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }), Action("favorite", R.drawable.ic_favorite,  onClicked = {
+                Toast.makeText(
+                    context,
+                    "favorite2",
+                    Toast.LENGTH_SHORT
+                ).show()
+            })
+        ),
+        startBackgroundColor = Color.Red,
+        endBackgroundColor = Color.Green,
+        swipeModifier = Modifier.fillMaxWidth(),
+        onStartSwiped = { item, position ->
+            Log.i("Mshari", "onStartSwiped")
             Log.i("Mshari", "item:${item.id}")
             Log.i("Mshari", "position:${position}")
             listItem = listItem.filter { it != item }
         },
-        swipeDirection = SwipeDirection.LEFT_TO_RIGHT,
 
+        onEndSwiped = { item, position ->
+            Log.i("Mshari", "onEndSwiped")
+            Log.i("Mshari", "item:${item.id}")
+            Log.i("Mshari", "position:${position}")
+        }
         )
 }
 
