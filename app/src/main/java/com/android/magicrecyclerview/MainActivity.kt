@@ -104,7 +104,7 @@ fun VerticalList(list: List<Item>) {
                     "Delete1",
                     Toast.LENGTH_SHORT
                 ).show()
-            }), Action("Delete1", R.drawable.ic_edit,
+            }), Action("Delete2", R.drawable.ic_edit,
                 onClicked = {
                     Toast.makeText(
                         context,
