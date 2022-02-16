@@ -9,4 +9,6 @@ object Constants {
     const val PADDING_HORIZONTAL = 0f
     const val VELOCITY = 125
     const val SWIPE_ANIMATION_DURATION = 250
+    const val ACTION_ICON_SIZE = 56
+    const val ACTION_HEIGHT = 56f
 }

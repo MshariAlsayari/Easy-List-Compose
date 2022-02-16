@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.Text
@@ -20,8 +21,9 @@ import com.android.magicrecyclerview.ui.theme.MagicRecyclerViewTheme
 @Composable
 fun magicRecyclerViewItem(item: Item) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+
         backgroundColor = Color.Blue,
+        shape = RoundedCornerShape(0.dp),
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(
