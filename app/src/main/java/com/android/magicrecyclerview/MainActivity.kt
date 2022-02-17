@@ -1,6 +1,7 @@
 package com.android.magicrecyclerview
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
@@ -12,9 +13,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.android.magicrecyclerview.model.Action
+import com.android.magic_recyclerview.component.magic_recyclerview.GridRecyclerView
+import com.android.magic_recyclerview.component.magic_recyclerview.HorizontalRecyclerView
+import com.android.magic_recyclerview.component.magic_recyclerview.RecyclerType
+import com.android.magic_recyclerview.component.magic_recyclerview.VerticalRecyclerView
+import com.android.magic_recyclerview.model.Action
 import com.android.magicrecyclerview.model.Item
-import com.android.magicrecyclerview.ui.component.magic_recyclerview.*
+import com.android.magicrecyclerview.ui.defaultEmptyView
+import com.android.magicrecyclerview.ui.magicRecyclerViewItem
 import com.android.magicrecyclerview.ui.theme.MagicRecyclerViewTheme
 
 
@@ -85,8 +91,38 @@ fun VerticalList(list: List<Item>) {
         emptyView = { defaultEmptyView() },
         paddingBetweenItems = 8f,
         startActions = listOf(
-            Action({ actionText("Delete1") }, { actionIcon(R.drawable.ic_edit) }),
-            Action({ actionText("Delete1") }, { actionIcon(R.drawable.ic_edit) })
+            Action(
+                { actionText("Delete1") },
+                { actionIcon(R.drawable.ic_edit) },
+                onClicked = { position, item ->
+                    Log.i("Mshari", "$position")
+                    Log.i("Mshari", "${item.name}")
+
+                }),
+            Action(
+                { actionText("Delete1") },
+                { actionIcon(R.drawable.ic_edit) },
+                onClicked = { position, item ->
+                    Log.i("Mshari", "$position")
+                    Log.i("Mshari", "${item.name}")
+
+                }),
+            Action(
+                { actionText("Delete1") },
+                { actionIcon(R.drawable.ic_edit) },
+                onClicked = { position, item ->
+                    Log.i("Mshari", "$position")
+                    Log.i("Mshari", "${item.name}")
+
+                }),
+            Action(
+                { actionText("Delete1") },
+                { actionIcon(R.drawable.ic_edit) },
+                onClicked = { position, item ->
+                    Log.i("Mshari", "$position")
+                    Log.i("Mshari", "${item.name}")
+
+                }),
         ),
         endActions = listOf(
             Action({ actionText("Fav1") }, { actionIcon(R.drawable.ic_favorite) }),

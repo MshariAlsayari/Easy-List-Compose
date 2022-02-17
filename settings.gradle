@@ -8,4 +8,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "MagicRecyclerViewLibrary"
 include ':app'
-include ':MagicRecyclerView'
+include ':magic-recyclerview'
