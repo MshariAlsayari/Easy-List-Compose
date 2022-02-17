@@ -29,7 +29,7 @@ This is an Android Library that's implemented in compose to help tp ypu to build
 ```
  dependencies {
      ...
-    implementation 'com.github.MshariAlsayari:Magic-RecyclerView-Compose:$latest-version'    
+    implementation 'com.github.MshariAlsayari:Magic-RecyclerView-Compose:0.1.0'    
  }
 ```
 
