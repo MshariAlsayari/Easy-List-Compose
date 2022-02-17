@@ -180,7 +180,8 @@ fun GridList(list: List<Item>) {
         views = { magicRecyclerViewItem(item = it) },
         emptyView = { defaultEmptyView() },
         paddingBetweenItems = 8f,
-        columnCount = 3
+        columnCount = 3,
+        scrollTo = 3
     )
 }
 

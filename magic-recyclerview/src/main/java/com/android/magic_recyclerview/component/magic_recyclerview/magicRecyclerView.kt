@@ -53,6 +53,7 @@ fun <T> VerticalRecyclerView(
     val isArabic = LocalLayoutDirection.current == LayoutDirection.Rtl
     val lacyColumn: @Composable () -> Unit = {
         LazyColumn(
+            modifier = modifier,
             state = listState,
             verticalArrangement = Arrangement.spacedBy(paddingBetweenItems.dp),
             contentPadding = PaddingValues(
@@ -154,6 +155,7 @@ fun <T> VerticalRecyclerView(
 
 @Composable
 fun <T> HorizontalRecyclerView(
+    modifier: Modifier = Modifier,
     list: List<T>,
     views: @Composable LazyItemScope.(item: T) -> Unit,
     emptyView: (@Composable () -> Unit)? = null,
@@ -169,6 +171,7 @@ fun <T> HorizontalRecyclerView(
 
     if (list.isNotEmpty()) {
         LazyRow(
+            modifier = modifier,
             state = listState,
             horizontalArrangement = Arrangement.spacedBy(paddingBetweenItems.dp),
             contentPadding = PaddingValues(
@@ -205,6 +208,7 @@ fun <T> HorizontalRecyclerView(
 @ExperimentalFoundationApi
 @Composable
 fun <T> GridRecyclerView(
+    modifier: Modifier = Modifier,
     list: List<T>,
     views: @Composable (LazyItemScope.(item: T) -> Unit),
     emptyView: @Composable (() -> Unit)? = null,
@@ -212,11 +216,16 @@ fun <T> GridRecyclerView(
     paddingVertical: Float = PADDING_VERTICAL,
     paddingHorizontal: Float = PADDING_HORIZONTAL,
     columnCount: Int = COLUMN_COUNT,
+    isRefreshing: Boolean = false,
+    onRefresh: (() -> Unit)? = null,
+    scrollTo: Int = 0,
 ) {
-
-    if (list.isNotEmpty()) {
-
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    val gridList: @Composable () -> Unit = {
         LazyVerticalGrid(
+            modifier = modifier,
+            state = listState,
             cells = GridCells.Fixed(columnCount),
             verticalArrangement = Arrangement.spacedBy(paddingBetweenItems.dp),
             horizontalArrangement = Arrangement.spacedBy(paddingBetweenItems.dp),
@@ -231,6 +240,27 @@ fun <T> GridRecyclerView(
                     views(it)
                 })
         }
+    }
+
+    if (list.isNotEmpty()) {
+
+        if (onRefresh == null) {
+            gridList()
+        } else {
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing),
+                onRefresh = { onRefresh() },
+            ) {
+                gridList()
+
+            }
+        }
+
+        coroutineScope.launch {
+            listState.animateScrollToItem(scrollTo)
+        }
+
+
     } else {
         emptyView(emptyView)
 
