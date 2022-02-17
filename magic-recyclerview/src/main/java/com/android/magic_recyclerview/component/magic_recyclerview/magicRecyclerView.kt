@@ -239,6 +239,10 @@ fun <T> GridRecyclerView(
                 itemContent = {
                     views(it)
                 })
+
+            coroutineScope.launch {
+                listState.animateScrollToItem(scrollTo)
+            }
         }
     }
 
@@ -256,9 +260,7 @@ fun <T> GridRecyclerView(
             }
         }
 
-        coroutineScope.launch {
-            listState.animateScrollToItem(scrollTo)
-        }
+
 
 
     } else {
