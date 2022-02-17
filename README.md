@@ -12,7 +12,7 @@
 
 
 ## Introduction
-This is an Android Library that's implemented in compose to help tp ypu to build a RecyclerView with some features.
+This is an Android Library that's implemented in compose to help you to build a RecyclerView with some features.
 
 ## Setup
 #### Step1: settings.gradle
