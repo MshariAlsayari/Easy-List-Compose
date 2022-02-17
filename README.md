@@ -156,8 +156,8 @@ fun actionText(text: String?) {
         modifier = Modifier,
         list = itemList,// list of data
         views = { magicRecyclerViewItem(item = it) } // list of composable view,
-        emptyView = { // any composeable view you want to show if the list is empty },
-        paddingBetweenItems = 8f,
+        emptyView = { // any composeable view if you want to show if the list is empty },
+        dividerView = { // any composeable view if want to add a divider between items },
         startActions = listOf(
             Action(
                 { actionText("Delete") },
@@ -190,9 +190,16 @@ fun actionText(text: String?) {
 
                 })
         ),
-        startActionBackgroundColor = Color.Red,
-        endActionBackgroundColor = Color.Green,
-        actionBackgroundHeight = 65f.dp,
+        startActionBackgroundColor = // set color of start row actions background color ,
+        endActionBackgroundColor = // set color of end row actions background color ,
+        actionBackgroundHeight = // set height of end row actions background color ,
+        actionBackgroundRadiusCorner = set a radius corner of the actions row default value is 0 ,
+        isRefreshing = // set false or true to show a swipeLayoutRefresh progress,
+        onRefresh: {// it's optional if you wan to add swipeRefreshLayout},
+        paddingBetweenItems= // to add a padding between items default value is 8f,
+        paddingVertical= // to add a padding on top and bottom of thw whole view default value is 0f,
+        paddingHorizontal=// to add a padding on right and left of thw whole view default value is 0f,
+        scrollTo = // default value is 0,
     )
 ```
 
