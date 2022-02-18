@@ -1,16 +1,17 @@
 package com.android.magicrecyclerview
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.android.magic_recyclerview.component.magic_recyclerview.GridRecyclerView
@@ -18,9 +19,10 @@ import com.android.magic_recyclerview.component.magic_recyclerview.HorizontalRec
 import com.android.magic_recyclerview.component.magic_recyclerview.RecyclerType
 import com.android.magic_recyclerview.component.magic_recyclerview.VerticalRecyclerView
 import com.android.magic_recyclerview.model.Action
-import com.android.magicrecyclerview.model.Item
+import com.android.magicrecyclerview.model.Anime
+import com.android.magicrecyclerview.ui.AnimeCard
+import com.android.magicrecyclerview.ui.AnimeGridCard
 import com.android.magicrecyclerview.ui.defaultEmptyView
-import com.android.magicrecyclerview.ui.magicRecyclerViewItem
 import com.android.magicrecyclerview.ui.theme.MagicRecyclerViewTheme
 
 
@@ -31,49 +33,59 @@ class MainActivity : ComponentActivity() {
     @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             MagicRecyclerViewTheme {
                 var recyclerType by remember { mutableStateOf(RecyclerType.VERTICAL) }
 
-                Surface(color = MaterialTheme.colors.background) {
+                Scaffold(
 
-                    Column {
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                        ) {
+                    topBar = {
+                        TopAppBar(title = { Text(text = "Magic Recycler View") })
 
-                            Button(onClick = {
-                                recyclerType = RecyclerType.VERTICAL
-                            }) {
-                                Text(text = "Vertical")
+                    }
+
+                ) {
+
+                    Surface(color = MaterialTheme.colors.background) {
+
+                        Column {
+
+                            var tabIndex by remember { mutableStateOf(0) } // 1.
+                            val tabTitles = listOf("Vertical", "Horizontal", "Grid")
+                            Column { // 2.
+                                TabRow(
+                                    selectedTabIndex = tabIndex) { // 3.
+                                    tabTitles.forEachIndexed { index, title ->
+                                        Tab(
+                                            modifier = Modifier.background(Color.White),
+                                            selectedContentColor = colorResource(id = R.color.purple_200),
+                                            selected = tabIndex == index, // 4.
+                                            onClick = { tabIndex = index },
+                                            text = { Text(text = title) }) // 5.
+                                    }
+                                }
+                                when (tabIndex) { // 6.
+                                    0 ->   recyclerType = RecyclerType.VERTICAL
+                                    1 ->   recyclerType = RecyclerType.HORIZONTAL
+                                    2 ->   recyclerType = RecyclerType.GRID
+                                }
                             }
 
-                            Button(onClick = {
-                                recyclerType = RecyclerType.HORIZONTAL
-                            }) {
-                                Text(text = "Horizontal")
-                            }
 
-                            Button(onClick = {
-                                recyclerType = RecyclerType.GRID
-                            }) {
-                                Text(text = "Grid")
-                            }
 
+                            when (recyclerType) {
+                                RecyclerType.VERTICAL -> VerticalList(DEFAULT_LIST)
+                                RecyclerType.HORIZONTAL -> HorizontalList(DEFAULT_LIST)
+                                RecyclerType.GRID -> GridList(DEFAULT_LIST)
+                            }
                         }
 
-
-                        when (recyclerType) {
-                            RecyclerType.VERTICAL -> VerticalList(DEFAULT_LIST)
-                            RecyclerType.HORIZONTAL -> HorizontalList(DEFAULT_LIST)
-                            RecyclerType.GRID -> GridList(DEFAULT_LIST)
-                        }
                     }
 
                 }
+
+
             }
         }
     }
@@ -81,64 +93,38 @@ class MainActivity : ComponentActivity() {
 
 @ExperimentalMaterialApi
 @Composable
-fun VerticalList(list: List<Item>) {
+fun VerticalList(list: List<Anime>) {
 
     val listItem by remember { mutableStateOf(list) }
     VerticalRecyclerView(
         modifier = Modifier,
         list = listItem,
-        views = { magicRecyclerViewItem(item = it) },
+        views = { AnimeCard(anime = it) },
         emptyView = { defaultEmptyView() },
         paddingBetweenItems = 8f,
         startActions = listOf(
             Action(
-                { actionText("Delete1") },
-                { actionIcon(R.drawable.ic_edit) },
+                { actionText("Delete") },
+                { actionIcon(R.drawable.ic_delete) },
                 onClicked = { position, item ->
-                    Log.i("Mshari", "$position")
-                    Log.i("Mshari", "${item.name}")
-
-                }),
-            Action(
-                { actionText("Delete1") },
-                { actionIcon(R.drawable.ic_edit) },
-                onClicked = { position, item ->
-                    Log.i("Mshari", "$position")
-                    Log.i("Mshari", "${item.name}")
-
-                }),
-            Action(
-                { actionText("Delete1") },
-                { actionIcon(R.drawable.ic_edit) },
-                onClicked = { position, item ->
-                    Log.i("Mshari", "$position")
-                    Log.i("Mshari", "${item.name}")
-
-                }),
-            Action(
-                { actionText("Delete1") },
-                { actionIcon(R.drawable.ic_edit) },
-                onClicked = { position, item ->
-                    Log.i("Mshari", "$position")
-                    Log.i("Mshari", "${item.name}")
 
                 }),
         ),
         endActions = listOf(
-            Action({ actionText("Fav1") }, { actionIcon(R.drawable.ic_favorite) }),
-            Action({ actionText("Fav2") }, { actionIcon(R.drawable.ic_favorite) })
+            Action({ actionText("Like") }, { actionIcon(R.drawable.ic_favorite) })
         ),
         startActionBackgroundColor = Color.Red,
-        endActionBackgroundColor = Color.Green,
-        actionBackgroundHeight = 65f.dp,
+        endActionBackgroundColor = Color.Magenta,
+        actionBackgroundHeight = 100f.dp,
+        paddingVertical = 8f
     )
 }
 
 @Composable
 fun actionIcon(@DrawableRes id: Int) {
     Icon(
-
         painter = painterResource(id = id),
+        tint = Color.White,
         contentDescription = "Icon"
     )
 
@@ -147,23 +133,22 @@ fun actionIcon(@DrawableRes id: Int) {
 
 @Composable
 fun actionText(text: String?) {
-
-
     Text(
         text = text ?: "",
         style = MaterialTheme.typography.button,
-        color = Color.Black
+        color = Color.White
     )
 }
 
 @Composable
-fun HorizontalList(list: List<Item>) {
+fun HorizontalList(list: List<Anime>) {
     val listItem by remember { mutableStateOf(list) }
     HorizontalRecyclerView(
         list = listItem,
-        views = { magicRecyclerViewItem(item = it) },
+        views = { AnimeCard(anime = it) },
         emptyView = { defaultEmptyView() },
         paddingBetweenItems = 8f,
+        paddingVertical = 8f,
         dividerView = {
 
         }
@@ -171,17 +156,25 @@ fun HorizontalList(list: List<Item>) {
 
 }
 
+
 @ExperimentalFoundationApi
 @Composable
-fun GridList(list: List<Item>) {
+fun GridList(list: List<Anime>) {
     val listItem by remember { mutableStateOf(list) }
     GridRecyclerView(
         list = listItem,
-        views = { magicRecyclerViewItem(item = it) },
+        views = { AnimeGridCard(anime = it) },
         emptyView = { defaultEmptyView() },
         paddingBetweenItems = 8f,
-        columnCount = 3,
+        paddingVertical = 8f,
+        columnCount = 2,
         scrollTo = 3
+
     )
+}
+
+@Composable
+fun tabs() {
+
 }
 

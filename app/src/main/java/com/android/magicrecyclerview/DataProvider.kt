@@ -1,158 +1,35 @@
 package com.android.magicrecyclerview
 
-import com.android.magicrecyclerview.model.Item
+import com.android.magicrecyclerview.model.Anime
 
 object DataProvider {
 
-    val emptyLis = listOf<Item>()
+    val emptyLis = listOf<Anime>()
 
     val itemList = listOf(
-        Item(
-            id = 1,
-            name = "Eman",
-            description = "Android Developer.",
+        Anime(
+            anime_id = 1,
+            anime_name = "Bleach",
+            anime_img = "https://m.media-amazon.com/images/M/MV5BZjE0YjVjODQtZGY2NS00MDcyLThhMDAtZGQwMTZiOWNmNjRiXkEyXkFqcGdeQXVyNTA4NzY1MzY@._V1_FMjpg_UX1000_.jpg",
 
             ),
-        Item(
-            id = 2,
-            name = "Raghad",
-            description = "Android Developer.",
+        Anime(
+            anime_id = 2,
+            anime_name = "Black Clover",
+            anime_img = "https://m.media-amazon.com/images/M/MV5BNTAzYTlkMWEtOTNjZC00ZDU0LWI5ODUtYTRmYzY0MTAzYWZlXkEyXkFqcGdeQXVyMzgxODM4NjM@._V1_FMjpg_UX1000_.jpg",
 
             ),
-        Item(
-            id = 3,
-            name = "Nawal",
-            description = "Android Developer.",
+        Anime(
+            anime_id = 3,
+            anime_name = "Dragon Ball",
+            anime_img = "https://m.media-amazon.com/images/M/MV5BMGMyOThiMGUtYmFmZi00YWM0LWJiM2QtZGMwM2Q2ODE4MzhhXkEyXkFqcGdeQXVyMjc2Nzg5OTQ@._V1_FMjpg_UX1000_.jpg",
 
             ),
-        Item(
-            id = 4,
-            name = "Mshari",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 5,
-            name = "Abdurhman",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 6,
-            name = "Fahad",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 6,
-            name = "Ibraheem",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 7,
-            name = "Abdullah",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 8,
-            name = "Osama",
-            description = "Android Developer.",
-
-            ),
-
-        Item(
-            id = 9,
-            name = "Ahmed",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 10,
-            name = "Ali",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 11,
-            name = "Omar",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 1,
-            name = "Eman",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 2,
-            name = "Raghad",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 3,
-            name = "Nawal",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 4,
-            name = "Mshari",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 5,
-            name = "Abdurhman",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 6,
-            name = "Fahad",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 6,
-            name = "Ibraheem",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 7,
-            name = "Abdullah",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 8,
-            name = "Osama",
-            description = "Android Developer.",
-
-            ),
-
-        Item(
-            id = 9,
-            name = "Ahmed",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 10,
-            name = "Ali",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 11,
-            name = "Omar",
-            description = "Android Developer.",
+        Anime(
+            anime_id = 5,
+            anime_name = "Naruto",
+            anime_img = "https://m.media-amazon.com/images/M/MV5BZmQ5NGFiNWEtMmMyMC00MDdiLTg4YjktOGY5Yzc2MDUxMTE1XkEyXkFqcGdeQXVyNTA4NzY1MzY@._V1_.jpg",
 
             )
-
     )
 }

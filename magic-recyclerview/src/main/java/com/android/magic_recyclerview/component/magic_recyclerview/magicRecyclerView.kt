@@ -1,11 +1,14 @@
 package com.android.magic_recyclerview.component.magic_recyclerview
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,11 +23,31 @@ import com.android.magic_recyclerview.Constants.PADDING_BETWEEN_ITEMS
 import com.android.magic_recyclerview.Constants.PADDING_HORIZONTAL
 import com.android.magic_recyclerview.Constants.PADDING_VERTICAL
 import com.android.magic_recyclerview.component.action_row.ActionsRow
+import com.android.magic_recyclerview.component.swippable_item.SwappableItem
 import com.android.magic_recyclerview.model.Action
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
 
+/***
+ * modifier - the modifier to apply to this layout.
+ * list -  list of data.
+ * views - the data view holder.
+ * dividerView - (optional) divider between items.
+ * emptyView - (optional) emptyview if the list is empty.
+ * startActions - list of actions if it is empty no swipe .
+ * endActions - list of actions if it is empty no swipe .
+ * startActionBackgroundColor - background color of the list of the start actions.
+ * endActionBackgroundColor - background color of the list of the end actions.
+ * actionBackgroundRadiusCorner - radius corner for both start background and end background actions.
+ * actionBackgroundHeight - height of the actions background.
+ * isRefreshing - show progress of the swipeRefreshLayout.
+ * onRefresh - (optional) callback when the swipeRefreshLayout swapped if null the list will wrapped without the swipeRefreshLayout .
+ * paddingBetweenItems - padding between items default is 8f.
+ * paddingVertical - padding on top and bottom of the whole list default is 0.
+ * paddingHorizontal - padding on left and right of the whole list default is 0.
+ * scrollTo - scroll to item default is 0.
+ */
 
 @ExperimentalMaterialApi
 @Composable
@@ -51,6 +74,7 @@ fun <T> VerticalRecyclerView(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val isArabic = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val isActionClicked = remember{ mutableStateOf(false)}
     val lacyColumn: @Composable () -> Unit = {
         LazyColumn(
             modifier = modifier,
@@ -82,6 +106,10 @@ fun <T> VerticalRecyclerView(
                                 radiusCorner = actionBackgroundRadiusCorner,
                                 backgroundColor = startActionBackgroundColor,
                                 actions = startActions,
+                                isActionClicked = {
+                                    isActionClicked.value = true
+                                    Log.i("Mshari", isActionClicked.value.toString())
+                                }
                             )
                             ActionsRow(
                                 modifier = Modifier
@@ -93,6 +121,9 @@ fun <T> VerticalRecyclerView(
                                 radiusCorner = actionBackgroundRadiusCorner,
                                 backgroundColor = endActionBackgroundColor,
                                 actions = endActions,
+                                isActionClicked = {
+                                    isActionClicked.value = true
+                                }
                             )
 
                         }
@@ -100,6 +131,7 @@ fun <T> VerticalRecyclerView(
                         SwappableItem(
                             modifier = modifier,
                             mainItem = { views(item) },
+                            isActionClicked = isActionClicked.value,
                             enableLTRSwipe = if (isArabic) endActions.isNotEmpty() else startActions.isNotEmpty(),
                             enableRTLSwipe = if (isArabic) startActions.isNotEmpty() else endActions.isNotEmpty(),
                         )
@@ -147,12 +179,22 @@ fun <T> VerticalRecyclerView(
 
         }
     } else { // if list is empty
-        emptyView(emptyView)
+        EmptyView(emptyView)
     }
 
 }
 
-
+/***
+ * modifier - the modifier to apply to this layout.
+ * list -  list of data.
+ * views - the data view holder.
+ * dividerView - (optional) divider between items.
+ * emptyView - (optional) emptyview if the list is empty.
+ * paddingBetweenItems - padding between items default is 8f.
+ * paddingVertical - padding on top and bottom of the whole list default is 0.
+ * paddingHorizontal - padding on left and right of the whole list default is 0.
+ * scrollTo - scroll to item default is 0.
+ */
 @Composable
 fun <T> HorizontalRecyclerView(
     modifier: Modifier = Modifier,
@@ -198,13 +240,27 @@ fun <T> HorizontalRecyclerView(
         }
 
     } else {
-        emptyView(emptyView)
+        EmptyView(emptyView)
 
     }
 
 }
 
-
+/***
+ * modifier - the modifier to apply to this layout.
+ * list -  list of data.
+ * views - the data view holder.
+ * dividerView - (optional) divider between items.
+ * emptyView - (optional) emptyview if the list is empty.
+ * actionBackgroundHeight - height of the actions background.
+ * isRefreshing - show progress of the swipeRefreshLayout.
+ * onRefresh - (optional) callback when the swipeRefreshLayout swapped if null the list will wrapped without the swipeRefreshLayout .
+ * paddingBetweenItems - padding between items default is 8f.
+ * paddingVertical - padding on top and bottom of the whole list default is 0.
+ * paddingHorizontal - padding on left and right of the whole list default is 0.
+ * scrollTo - scroll to item default is 0.
+ * columnCount - number of columns default is 2
+ */
 @ExperimentalFoundationApi
 @Composable
 fun <T> GridRecyclerView(
@@ -264,14 +320,14 @@ fun <T> GridRecyclerView(
 
 
     } else {
-        emptyView(emptyView)
+        EmptyView(emptyView)
 
     }
 
 }
 
 @Composable
-fun emptyView(view: (@Composable () -> Unit)? = null) {
+fun EmptyView(view: (@Composable () -> Unit)? = null) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,

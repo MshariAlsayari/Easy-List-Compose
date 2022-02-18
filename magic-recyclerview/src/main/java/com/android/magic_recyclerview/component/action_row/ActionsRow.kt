@@ -18,7 +18,8 @@ fun <T> ActionsRow(
     position: Int,
     actions: List<Action<T>>,
     radiusCorner: Dp = Dp(0f),
-    backgroundColor: Color
+    backgroundColor: Color,
+    isActionClicked: (() -> Unit)? = null
 ) {
 
     Card(
@@ -40,10 +41,13 @@ fun <T> ActionsRow(
                         0 -> ActionItem(
                             action = actions[i],
                             onClicked = { position, item ->
+                                isActionClicked?.invoke()
                                 actions[i].onClicked?.invoke(
                                     position,
                                     item
                                 )
+
+
                             },
                             item = item,
                             position = position
@@ -51,6 +55,7 @@ fun <T> ActionsRow(
                         1 -> ActionItem(
                             action = actions[i],
                             onClicked = { position, item ->
+                                isActionClicked?.invoke()
                                 actions[i].onClicked?.invoke(
                                     position,
                                     item
@@ -62,6 +67,7 @@ fun <T> ActionsRow(
                         2 -> ActionItem(
                             action = actions[i],
                             onClicked = { position, item ->
+                                isActionClicked?.invoke()
                                 actions[i].onClicked?.invoke(
                                     position,
                                     item
