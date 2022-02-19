@@ -29,7 +29,7 @@ This is an Android Library that's implemented in compose to help you to build a 
 ```
  dependencies {
      ...
-    implementation 'com.github.MshariAlsayari:Magic-RecyclerView-Compose:0.1.0'    
+    implementation 'com.github.MshariAlsayari:Magic-RecyclerView-Compose:0.1.1'    
  }
 ```
 
