@@ -26,7 +26,7 @@ import com.android.magicrecyclerview.ui.defaultEmptyView
 import com.android.magicrecyclerview.ui.theme.MagicRecyclerViewTheme
 
 
-var DEFAULT_LIST = DataProvider.emptyLis
+var DEFAULT_LIST = DataProvider.itemList
 
 class MainActivity : ComponentActivity() {
     @ExperimentalMaterialApi

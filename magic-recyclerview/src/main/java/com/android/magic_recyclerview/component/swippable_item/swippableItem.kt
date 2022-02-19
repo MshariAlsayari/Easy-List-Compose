@@ -67,8 +67,6 @@ fun SwappableItem(
     coroutineScope.launch {
         if (collapsed.value)
         swappableState.animateTo(SwipeDirection.NON)
-
-        Log.i("Mshari", "SwappableItem:${collapsed.value}")
     }
 
     Surface(
