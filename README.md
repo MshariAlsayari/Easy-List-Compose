@@ -8,7 +8,6 @@
    - [Vertical](#vertical)
    - [Horizontal](#horizontal)
    - [Grid](#grid)
-- [Versions](#versions)
 
 
 ## Introduction
@@ -35,172 +34,145 @@ This is an Android Library that's implemented in compose to help you to build a 
 
 
 ## Examples
-There are three types of a Recyclerview ***Vertical, Horizontal and Grid.*** and we need to know we have Actions
+There are three types of a Recyclerview ***Vertical, Horizontal and Grid.***.
+In the vertical list you can make items swappable by adding list of Action onStart or onEnd
 
 
 ```
+/***
+ * text - a composable text.
+ * icon -  a composable icon c.
+ * onClicked - calback to handle onClick.
+ * actionSize - action size default is 56.
+ */
+ 
 data class Action<T>(
     val text: (@Composable () -> Unit)? = null,
     val icon: (@Composable () -> Unit)? = null,
     val onClicked: ((position: Int, item: T) -> Unit)? = null,
     val actionSize: Dp = ACTION_ICON_SIZE.dp
 )
-```
-
-Before providing examples let's say we have model, data and composeable view for swippable card, action text and action icone:
-
-Model
-```
-data class Item(
-    val id: Int,
-    val name: String,
-    val description: String
 )
 ```
-
-Data
-```
-   val itemList = listOf(
-        Item(
-            id = 1,
-            name = "Eman",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 2,
-            name = "Raghad",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 3,
-            name = "Nawal",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 4,
-            name = "Mshari",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 5,
-            name = "Abdurhman",
-            description = "Android Developer.",
-
-            ),
-        Item(
-            id = 6,
-            name = "Fahad",
-            description = "Android Developer.",
-            )
-    )
- 
-```
-
-Composeable view 
-
-```
-@Composable
-fun magicRecyclerViewItem(item: Item) {
-    Card(
-        backgroundColor = Color.Blue,
-        shape = RoundedCornerShape(0.dp),
-    ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .align(Alignment.CenterVertically)
-            ) {
-                Text(text = item.name, style = typography.h6, color = Color.White)
-                Text(text = item.description, style = typography.caption, color = Color.White)
-            }
-        }
-    }
-}
-
-@Composable
-fun actionIcon(@DrawableRes id: Int) {
-    Icon(
-
-        painter = painterResource(id = id),
-        contentDescription = "Icon"
-    )
-
-
-}
-
-@Composable
-fun actionText(text: String?) {
-
-
-    Text(
-        text = text ?: "",
-        style = MaterialTheme.typography.button,
-        color = Color.Black
-    )
-}
-```
-
 
 
 ## Vertical
 
 
 ```
-   VerticalRecyclerView(
-        modifier = Modifier,
-        list = itemList,// list of data
-        views = { magicRecyclerViewItem(item = it) } // list of composable view,
-        emptyView = { // any composeable view if you want to show if the list is empty },
-        dividerView = { // any composeable view if want to add a divider between items },
-        startActions = listOf(
-            Action(
-                { actionText("Delete") },
-                { actionIcon(R.drawable.ic_delete) },
-                onClicked = { position, item ->
-                    // do something
 
-                }),
-            Action(
-                { actionText("Archive") },
-                { actionIcon(R.drawable.ic_archive) },
-                onClicked = { position, item ->
-                    // do something
+/***
+ * modifier - the modifier to apply to this layout.
+ * list -  list of data.
+ * views - the data view holder.
+ * dividerView - (optional) divider between items.
+ * emptyView - (optional) emptyview if the list is empty.
+ * startActions - list of actions if it is empty no swipe .
+ * endActions - list of actions if it is empty no swipe .
+ * startActionBackgroundColor - background color of the list of the start actions.
+ * endActionBackgroundColor - background color of the list of the end actions.
+ * actionBackgroundRadiusCorner - radius corner for both start background and end background actions.
+ * actionBackgroundHeight - height of the actions background.
+ * isRefreshing - show progress of the swipeRefreshLayout.
+ * onRefresh - (optional) callback when the swipeRefreshLayout swapped if null the list will wrapped without the swipeRefreshLayout .
+ * paddingBetweenItems - padding between items default is 8f.
+ * paddingVertical - padding on top and bottom of the whole list default is 0.
+ * paddingHorizontal - padding on left and right of the whole list default is 0.
+ * scrollTo - scroll to item default is 0.
+ */
 
-                })
-        ),
-        endActions = listOf(
-            Action(
-                { actionText("Favorite") },
-                { actionIcon(R.drawable.ic_favorite) },
-                onClicked = { position, item ->
-                    // do something
+@ExperimentalMaterialApi
+@Composable
+fun <T> VerticalRecyclerView(
+    modifier: Modifier = Modifier,
+    list: List<T>,
+    views: @Composable LazyItemScope.(item: T) -> Unit,
+    dividerView: (@Composable () -> Unit)? = null,
+    emptyView: (@Composable () -> Unit)? = null,
+    startActions: List<Action<T>> = listOf(),
+    endActions: List<Action<T>> = listOf(),
+    startActionBackgroundColor: Color = Color.Transparent,
+    endActionBackgroundColor: Color = Color.Transparent,
+    actionBackgroundRadiusCorner: Float = 0f,
+    actionBackgroundHeight: Float = ACTION_HEIGHT,
+    isRefreshing: Boolean = false,
+    onRefresh: (() -> Unit)? = null,
+    paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
+    paddingVertical: Float = PADDING_VERTICAL,
+    paddingHorizontal: Float = PADDING_HORIZONTAL,
+    scrollTo: Int = 0,
+)
+ 
+```
 
-                }),
-            Action(
-                { actionText("Subscribe") },
-                { actionIcon(R.drawable.ic_subscribe) },
-                onClicked = { position, item ->
-                    // do something
+## Horizontal
 
-                })
-        ),
-        startActionBackgroundColor = // set color of start row actions background color ,
-        endActionBackgroundColor = // set color of end row actions background color ,
-        actionBackgroundHeight = // set height of end row actions background color ,
-        actionBackgroundRadiusCorner = set a radius corner of the actions row default value is 0 ,
-        isRefreshing = // set false or true to show a swipeLayoutRefresh progress,
-        onRefresh: {// it's optional if you want to add swipeRefreshLayout},
-        paddingBetweenItems= // to add a padding between items default value is 8f,
-        paddingVertical= // to add a padding on top and bottom of thw whole view default value is 0f,
-        paddingHorizontal=// to add a padding on right and left of thw whole view default value is 0f,
-        scrollTo = // default value is 0,
-    )
+
+```
+
+/***
+ * modifier - the modifier to apply to this layout.
+ * list -  list of data.
+ * views - the data view holder.
+ * dividerView - (optional) divider between items.
+ * emptyView - (optional) emptyview if the list is empty.
+ * paddingBetweenItems - padding between items default is 8f.
+ * paddingVertical - padding on top and bottom of the whole list default is 0.
+ * paddingHorizontal - padding on left and right of the whole list default is 0.
+ * scrollTo - scroll to item default is 0.
+ */
+@Composable
+fun <T> HorizontalRecyclerView(
+    modifier: Modifier = Modifier,
+    list: List<T>,
+    views: @Composable LazyItemScope.(item: T) -> Unit,
+    emptyView: (@Composable () -> Unit)? = null,
+    dividerView: (@Composable () -> Unit)? = null,
+    paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
+    paddingVertical: Float = PADDING_VERTICAL,
+    paddingHorizontal: Float = PADDING_HORIZONTAL,
+    scrollTo: Int = 0,
+)
+ 
+```
+
+
+## Grid
+
+
+```
+
+/***
+ * modifier - the modifier to apply to this layout.
+ * list -  list of data.
+ * views - the data view holder.
+ * dividerView - (optional) divider between items.
+ * emptyView - (optional) emptyview if the list is empty.
+ * actionBackgroundHeight - height of the actions background.
+ * isRefreshing - show progress of the swipeRefreshLayout.
+ * onRefresh - (optional) callback when the swipeRefreshLayout swapped if null the list will wrapped without the swipeRefreshLayout .
+ * paddingBetweenItems - padding between items default is 8f.
+ * paddingVertical - padding on top and bottom of the whole list default is 0.
+ * paddingHorizontal - padding on left and right of the whole list default is 0.
+ * scrollTo - scroll to item default is 0.
+ * columnCount - number of columns default is 2
+ */
+@ExperimentalFoundationApi
+@Composable
+fun <T> GridRecyclerView(
+    modifier: Modifier = Modifier,
+    list: List<T>,
+    views: @Composable (LazyItemScope.(item: T) -> Unit),
+    emptyView: @Composable (() -> Unit)? = null,
+    paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
+    paddingVertical: Float = PADDING_VERTICAL,
+    paddingHorizontal: Float = PADDING_HORIZONTAL,
+    columnCount: Int = COLUMN_COUNT,
+    isRefreshing: Boolean = false,
+    onRefresh: (() -> Unit)? = null,
+    scrollTo: Int = 0,
+)
+ 
 ```
 
 
