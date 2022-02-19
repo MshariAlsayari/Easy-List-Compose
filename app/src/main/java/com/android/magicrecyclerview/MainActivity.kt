@@ -26,7 +26,7 @@ import com.android.magicrecyclerview.ui.defaultEmptyView
 import com.android.magicrecyclerview.ui.theme.MagicRecyclerViewTheme
 
 
-var DEFAULT_LIST = DataProvider.itemList
+var DEFAULT_LIST = DataProvider.emptyLis
 
 class MainActivity : ComponentActivity() {
     @ExperimentalMaterialApi
@@ -115,7 +115,7 @@ fun VerticalList(list: List<Anime>) {
         ),
         startActionBackgroundColor = Color.Red,
         endActionBackgroundColor = Color.Magenta,
-        actionBackgroundHeight = 100f.dp,
+        actionBackgroundHeight = 100f,
         paddingVertical = 8f
     )
 }

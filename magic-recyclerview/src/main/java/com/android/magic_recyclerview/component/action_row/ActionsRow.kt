@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.android.magic_recyclerview.model.Action
 
 @Composable
@@ -17,7 +18,7 @@ fun <T> ActionsRow(
     item: T,
     position: Int,
     actions: List<Action<T>>,
-    radiusCorner: Dp = Dp(0f),
+    radiusCorner: Float = 0f,
     backgroundColor: Color,
     isActionClicked: (() -> Unit)? = null
 ) {
@@ -25,7 +26,7 @@ fun <T> ActionsRow(
     Card(
         modifier = modifier,
         backgroundColor = backgroundColor,
-        shape = RoundedCornerShape(radiusCorner),
+        shape = RoundedCornerShape(radiusCorner.dp),
     ) {
 
         Row(

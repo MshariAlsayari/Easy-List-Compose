@@ -1,6 +1,5 @@
 package com.android.magic_recyclerview.component.magic_recyclerview
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -14,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.android.magic_recyclerview.Constants.ACTION_HEIGHT
@@ -61,8 +59,8 @@ fun <T> VerticalRecyclerView(
     endActions: List<Action<T>> = listOf(),
     startActionBackgroundColor: Color = Color.Transparent,
     endActionBackgroundColor: Color = Color.Transparent,
-    actionBackgroundRadiusCorner: Dp = Dp(0f),
-    actionBackgroundHeight: Dp = Dp(ACTION_HEIGHT),
+    actionBackgroundRadiusCorner: Float = 0f,
+    actionBackgroundHeight: Float = ACTION_HEIGHT,
     isRefreshing: Boolean = false,
     onRefresh: (() -> Unit)? = null,
     paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
@@ -100,7 +98,7 @@ fun <T> VerticalRecyclerView(
                                 modifier = Modifier
                                     .fillMaxHeight()
                                     .weight(1f, true)
-                                    .height(actionBackgroundHeight),
+                                    .height(actionBackgroundHeight.dp),
                                 item = item,
                                 position = index,
                                 radiusCorner = actionBackgroundRadiusCorner,
@@ -108,14 +106,13 @@ fun <T> VerticalRecyclerView(
                                 actions = startActions,
                                 isActionClicked = {
                                     isActionClicked.value = true
-                                    Log.i("Mshari", isActionClicked.value.toString())
                                 }
                             )
                             ActionsRow(
                                 modifier = Modifier
                                     .fillMaxHeight()
                                     .weight(1f, true)
-                                    .height(actionBackgroundHeight),
+                                    .height(actionBackgroundHeight.dp),
                                 item = item,
                                 position = index,
                                 radiusCorner = actionBackgroundRadiusCorner,
