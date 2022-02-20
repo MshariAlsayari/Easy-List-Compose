@@ -1,5 +1,7 @@
 package com.android.magic_recyclerview.component.magic_recyclerview
 
+import android.os.Handler
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -106,6 +108,9 @@ fun <T> VerticalRecyclerView(
                                 actions = startActions,
                                 isActionClicked = {
                                     isActionClicked.value = true
+                                    Handler().postDelayed({
+                                        isActionClicked.value = false
+                                    }, 1000)
                                 }
                             )
                             ActionsRow(
@@ -120,6 +125,9 @@ fun <T> VerticalRecyclerView(
                                 actions = endActions,
                                 isActionClicked = {
                                     isActionClicked.value = true
+                                    Handler().postDelayed({
+                                        isActionClicked.value = false
+                                    }, 1000)
                                 }
                             )
 
@@ -129,6 +137,12 @@ fun <T> VerticalRecyclerView(
                             modifier = modifier,
                             mainItem = { views(item) },
                             isActionClicked = isActionClicked.value,
+                            onCollapsed = {
+                                Log.i("Mshari onCollapsed", index.toString())
+                            },
+                            onExtended = { type ->
+                                Log.i("Mshari onExtend ", "$index $type")
+                            },
                             enableLTRSwipe = if (isArabic) endActions.isNotEmpty() else startActions.isNotEmpty(),
                             enableRTLSwipe = if (isArabic) startActions.isNotEmpty() else endActions.isNotEmpty(),
                         )

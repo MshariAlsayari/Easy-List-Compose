@@ -6,14 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import com.android.magic_recyclerview.component.magic_recyclerview.GridRecyclerView
 import com.android.magic_recyclerview.component.magic_recyclerview.HorizontalRecyclerView
 import com.android.magic_recyclerview.component.magic_recyclerview.RecyclerType

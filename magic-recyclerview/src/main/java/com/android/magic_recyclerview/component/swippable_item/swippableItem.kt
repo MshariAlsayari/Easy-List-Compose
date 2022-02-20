@@ -1,7 +1,6 @@
 package com.android.magic_recyclerview.component.swippable_item
 
 
-import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
@@ -24,7 +23,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.android.magic_recyclerview.Constants
+import com.android.magic_recyclerview.component.action_row.ActionRowType
 import kotlinx.coroutines.launch
+import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 
@@ -35,14 +36,16 @@ fun SwappableItem(
     mainItem: @Composable () -> Unit,
     enableLTRSwipe: Boolean = false,
     enableRTLSwipe: Boolean = false,
-    isActionClicked : Boolean = false,
+    isActionClicked: Boolean = false,
     animationSpec: AnimationSpec<Float> = tween(Constants.SWIPE_ANIMATION_DURATION),
     thresholds: (from: SwipeDirection, to: SwipeDirection) -> ThresholdConfig = { _, _ ->
         FractionalThreshold(
             0.6f
         )
     },
-    velocityThreshold: Dp = Constants.VELOCITY.dp
+    velocityThreshold: Dp = Constants.VELOCITY.dp,
+    onCollapsed: () -> Unit,
+    onExtended: (type: ActionRowType) -> Unit
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -53,7 +56,10 @@ fun SwappableItem(
 
     val isRTL = LocalLayoutDirection.current == LayoutDirection.Rtl
     val swipeEnabled = remember { mutableStateOf(true) }
-    val collapsed = remember { mutableStateOf(isActionClicked) }
+    val wasExtendState = remember { mutableStateOf(false) }
+    val swappableItemOffset = remember { mutableStateOf(0) }
+    val isActionClickedState = remember { mutableStateOf(false) }
+    isActionClickedState.value = isActionClicked
     val maxWidthInPx = with(LocalDensity.current) {
         LocalConfiguration.current.screenWidthDp.dp.toPx()
     }
@@ -65,8 +71,9 @@ fun SwappableItem(
 
 
     coroutineScope.launch {
-        if (collapsed.value)
-        swappableState.animateTo(SwipeDirection.NON)
+        if (isActionClickedState.value) {
+            swappableState.animateTo(SwipeDirection.NON)
+        }
     }
 
     Surface(
@@ -98,6 +105,7 @@ fun SwappableItem(
 
                 }
 
+                swappableItemOffset.value = offset
                 if (isRTL) {
                     IntOffset(-offset, 0)
                 } else {
@@ -115,6 +123,36 @@ fun SwappableItem(
                 velocityThreshold = velocityThreshold
             )
     ) {
+
+        if ((swappableState.currentValue == SwipeDirection.LEFT_TO_RIGHT || swappableState.currentValue == SwipeDirection.RIGHT_TO_LEFT) && !swappableState.isAnimationRunning && swappableItemOffset.value.absoluteValue == middleSwipeItem.value) {
+
+            if (swappableState.currentValue == SwipeDirection.LEFT_TO_RIGHT) {
+
+                if (isRTL) {
+                    onExtended.invoke(ActionRowType.END)
+                } else {
+                    onExtended.invoke(ActionRowType.START)
+                }
+
+            }
+
+            if (swappableState.currentValue == SwipeDirection.RIGHT_TO_LEFT) {
+                if (isRTL) {
+                    onExtended.invoke(ActionRowType.START)
+                } else {
+                    onExtended.invoke(ActionRowType.END)
+                }
+            }
+
+
+
+            wasExtendState.value = true
+        }
+
+        if (swappableState.currentValue == SwipeDirection.NON && !swappableState.isAnimationRunning && swappableItemOffset.value.absoluteValue == 0 && !isActionClickedState.value && wasExtendState.value) {
+            onCollapsed.invoke()
+            wasExtendState.value = false
+        }
         mainItem()
     }
 
