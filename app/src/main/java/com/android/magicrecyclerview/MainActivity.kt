@@ -98,7 +98,7 @@ fun VerticalList(list: List<Anime>) {
     VerticalRecyclerView(
         modifier = Modifier,
         list = listItem,
-        onItemClicked = { item ->
+        onItemClicked = { item, position ->
         },
         views = { AnimeCard(anime = it) },
         emptyView = { defaultEmptyView() },

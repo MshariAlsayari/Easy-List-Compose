@@ -1,7 +1,7 @@
 package com.android.magic_recyclerview.component.magic_recyclerview
 
 import android.os.Handler
-import android.util.Log
+import android.os.Looper
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -22,6 +22,7 @@ import com.android.magic_recyclerview.Constants.COLUMN_COUNT
 import com.android.magic_recyclerview.Constants.PADDING_BETWEEN_ITEMS
 import com.android.magic_recyclerview.Constants.PADDING_HORIZONTAL
 import com.android.magic_recyclerview.Constants.PADDING_VERTICAL
+import com.android.magic_recyclerview.component.action_row.ActionRowType
 import com.android.magic_recyclerview.component.action_row.ActionsRow
 import com.android.magic_recyclerview.component.swippable_item.SwappableItem
 import com.android.magic_recyclerview.model.Action
@@ -33,7 +34,9 @@ import kotlinx.coroutines.launch
  * modifier - the modifier to apply to this layout.
  * list -  list of data.
  * views - the data view holder.
- * onItemClicked - callback when ite item's been clicked
+ * onItemClicked - callback when the swappable item's been clicked
+ * onItemCollapsed - callback when the swappable item's been collapsed
+ * onItemExpanded - callback when the swappable item's been expanded
  * dividerView - (optional) divider between items.
  * emptyView - (optional) emptyview if the list is empty.
  * startActions - list of actions if it is empty no swipe .
@@ -56,7 +59,9 @@ fun <T> VerticalRecyclerView(
     modifier: Modifier = Modifier,
     list: List<T>,
     views: @Composable LazyItemScope.(item: T) -> Unit,
-    onItemClicked: (item: T) -> Unit,
+    onItemClicked: (item: T, position: Int) -> Unit,
+    onItemCollapsed: ((item: T, position: Int) -> Unit)? = null,
+    onItemExpanded: ((item: T, position: Int, type: ActionRowType) -> Unit)? = null,
     dividerView: (@Composable () -> Unit)? = null,
     emptyView: (@Composable () -> Unit)? = null,
     startActions: List<Action<T>> = listOf(),
@@ -76,7 +81,7 @@ fun <T> VerticalRecyclerView(
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val isArabic = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val isActionClicked = remember{ mutableStateOf(false)}
+    val isActionClicked = remember { mutableStateOf(false) }
     val lacyColumn: @Composable () -> Unit = {
         LazyColumn(
             modifier = modifier,
@@ -110,7 +115,7 @@ fun <T> VerticalRecyclerView(
                                 actions = startActions,
                                 isActionClicked = {
                                     isActionClicked.value = true
-                                    Handler().postDelayed({
+                                    Handler(Looper.getMainLooper()).postDelayed({
                                         isActionClicked.value = false
                                     }, 1000)
                                 }
@@ -127,7 +132,7 @@ fun <T> VerticalRecyclerView(
                                 actions = endActions,
                                 isActionClicked = {
                                     isActionClicked.value = true
-                                    Handler().postDelayed({
+                                    Handler(Looper.getMainLooper()).postDelayed({
                                         isActionClicked.value = false
                                     }, 1000)
                                 }
@@ -140,16 +145,16 @@ fun <T> VerticalRecyclerView(
                             item = item,
                             mainItem = { views(item) },
                             isActionClicked = isActionClicked.value,
-                            onCollapsed = {
-                                Log.i("Mshari onCollapsed", index.toString())
+                            onCollapsed = { item ->
+                                onItemCollapsed?.invoke(item, index)
                             },
-                            onExtended = { type ->
-                                Log.i("Mshari onExtend ", "$index $type")
+                            onExpanded = { type, item ->
+                                onItemExpanded?.invoke(item, index, type)
                             },
                             enableLTRSwipe = if (isArabic) endActions.isNotEmpty() else startActions.isNotEmpty(),
                             enableRTLSwipe = if (isArabic) startActions.isNotEmpty() else endActions.isNotEmpty(),
                             onItemClicked = {
-                                onItemClicked(it)
+                                onItemClicked(it, index)
                             }
                         )
                     }
@@ -332,8 +337,6 @@ fun <T> GridRecyclerView(
 
             }
         }
-
-
 
 
     } else {
