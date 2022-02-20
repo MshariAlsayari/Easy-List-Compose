@@ -1,10 +1,10 @@
 package com.android.magic_recyclerview.component.swippable_item
 
 
-import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -30,12 +30,14 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun SwappableItem(
+fun <T> SwappableItem(
     modifier: Modifier = Modifier,
+    item: T,
     mainItem: @Composable () -> Unit,
     enableLTRSwipe: Boolean = false,
     enableRTLSwipe: Boolean = false,
-    isActionClicked : Boolean = false,
+    isActionClicked: Boolean = false,
+    onItemClicked: (item: T) -> Unit,
     animationSpec: AnimationSpec<Float> = tween(Constants.SWIPE_ANIMATION_DURATION),
     thresholds: (from: SwipeDirection, to: SwipeDirection) -> ThresholdConfig = { _, _ ->
         FractionalThreshold(
@@ -53,7 +55,8 @@ fun SwappableItem(
 
     val isRTL = LocalLayoutDirection.current == LayoutDirection.Rtl
     val swipeEnabled = remember { mutableStateOf(true) }
-    val collapsed = remember { mutableStateOf(isActionClicked) }
+    val collapsed = remember { mutableStateOf(false) }
+    collapsed.value = isActionClicked
     val maxWidthInPx = with(LocalDensity.current) {
         LocalConfiguration.current.screenWidthDp.dp.toPx()
     }
@@ -66,7 +69,7 @@ fun SwappableItem(
 
     coroutineScope.launch {
         if (collapsed.value)
-        swappableState.animateTo(SwipeDirection.NON)
+            swappableState.animateTo(SwipeDirection.NON)
     }
 
     Surface(
@@ -114,6 +117,12 @@ fun SwappableItem(
                 thresholds = thresholds,
                 velocityThreshold = velocityThreshold
             )
+            .clickable {
+                coroutineScope.launch {
+                    swappableState.animateTo(SwipeDirection.NON)
+                    onItemClicked(item)
+                }
+            }
     ) {
         mainItem()
     }
