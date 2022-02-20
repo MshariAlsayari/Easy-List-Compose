@@ -28,7 +28,7 @@ This is an Android Library that's implemented in compose to help you to build a 
 ```
  dependencies {
      ...
-    implementation 'com.github.MshariAlsayari:Magic-RecyclerView-Compose:0.1.1'    
+ 	implementation 'com.github.MshariAlsayari:Magic-RecyclerView-Compose:0.1.2' 
  }
 ```
 
@@ -60,11 +60,13 @@ data class Action<T>(
 
 
 ```
-
 /***
  * modifier - the modifier to apply to this layout.
  * list -  list of data.
  * views - the data view holder.
+ * onItemClicked - callback when the swappable item's been clicked
+ * onItemCollapsed - callback when the swappable item's been collapsed
+ * onItemExpanded - callback when the swappable item's been expanded
  * dividerView - (optional) divider between items.
  * emptyView - (optional) emptyview if the list is empty.
  * startActions - list of actions if it is empty no swipe .
@@ -87,6 +89,9 @@ fun <T> VerticalRecyclerView(
     modifier: Modifier = Modifier,
     list: List<T>,
     views: @Composable LazyItemScope.(item: T) -> Unit,
+    onItemClicked: (item: T, position: Int) -> Unit,
+    onItemCollapsed: ((item: T, position: Int) -> Unit)? = null,
+    onItemExpanded: ((item: T, position: Int, type: ActionRowType) -> Unit)? = null,
     dividerView: (@Composable () -> Unit)? = null,
     emptyView: (@Composable () -> Unit)? = null,
     startActions: List<Action<T>> = listOf(),
