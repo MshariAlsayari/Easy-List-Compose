@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
  * modifier - the modifier to apply to this layout.
  * list -  list of data.
  * views - the data view holder.
+ * onItemClicked - callback when ite item's been clicked
  * dividerView - (optional) divider between items.
  * emptyView - (optional) emptyview if the list is empty.
  * startActions - list of actions if it is empty no swipe .
@@ -55,6 +56,7 @@ fun <T> VerticalRecyclerView(
     modifier: Modifier = Modifier,
     list: List<T>,
     views: @Composable LazyItemScope.(item: T) -> Unit,
+    onItemClicked: (item: T) -> Unit,
     dividerView: (@Composable () -> Unit)? = null,
     emptyView: (@Composable () -> Unit)? = null,
     startActions: List<Action<T>> = listOf(),
@@ -135,6 +137,7 @@ fun <T> VerticalRecyclerView(
 
                         SwappableItem(
                             modifier = modifier,
+                            item = item,
                             mainItem = { views(item) },
                             isActionClicked = isActionClicked.value,
                             onCollapsed = {
@@ -145,6 +148,9 @@ fun <T> VerticalRecyclerView(
                             },
                             enableLTRSwipe = if (isArabic) endActions.isNotEmpty() else startActions.isNotEmpty(),
                             enableRTLSwipe = if (isArabic) startActions.isNotEmpty() else endActions.isNotEmpty(),
+                            onItemClicked = {
+                                onItemClicked(it)
+                            }
                         )
                     }
 

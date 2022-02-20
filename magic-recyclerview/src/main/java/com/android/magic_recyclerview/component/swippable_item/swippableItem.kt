@@ -4,6 +4,7 @@ package com.android.magic_recyclerview.component.swippable_item
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -31,12 +32,14 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun SwappableItem(
+fun <T> SwappableItem(
     modifier: Modifier = Modifier,
+    item: T,
     mainItem: @Composable () -> Unit,
     enableLTRSwipe: Boolean = false,
     enableRTLSwipe: Boolean = false,
     isActionClicked: Boolean = false,
+    onItemClicked: (item: T) -> Unit,
     animationSpec: AnimationSpec<Float> = tween(Constants.SWIPE_ANIMATION_DURATION),
     thresholds: (from: SwipeDirection, to: SwipeDirection) -> ThresholdConfig = { _, _ ->
         FractionalThreshold(
@@ -122,6 +125,12 @@ fun SwappableItem(
                 thresholds = thresholds,
                 velocityThreshold = velocityThreshold
             )
+            .clickable {
+                coroutineScope.launch {
+                    swappableState.animateTo(SwipeDirection.NON)
+                    onItemClicked(item)
+                }
+            }
     ) {
 
         if ((swappableState.currentValue == SwipeDirection.LEFT_TO_RIGHT || swappableState.currentValue == SwipeDirection.RIGHT_TO_LEFT) && !swappableState.isAnimationRunning && swappableItemOffset.value.absoluteValue == middleSwipeItem.value) {

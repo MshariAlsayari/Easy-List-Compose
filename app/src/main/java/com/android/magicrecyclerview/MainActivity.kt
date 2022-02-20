@@ -98,6 +98,8 @@ fun VerticalList(list: List<Anime>) {
     VerticalRecyclerView(
         modifier = Modifier,
         list = listItem,
+        onItemClicked = { item ->
+        },
         views = { AnimeCard(anime = it) },
         emptyView = { defaultEmptyView() },
         paddingBetweenItems = 8f,
