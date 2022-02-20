@@ -56,7 +56,6 @@ fun <T> SwappableItem(
     val isRTL = LocalLayoutDirection.current == LayoutDirection.Rtl
     val swipeEnabled = remember { mutableStateOf(true) }
     val collapsed = remember { mutableStateOf(false) }
-    collapsed.value = isActionClicked
     val maxWidthInPx = with(LocalDensity.current) {
         LocalConfiguration.current.screenWidthDp.dp.toPx()
     }
