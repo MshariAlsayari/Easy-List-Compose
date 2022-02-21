@@ -1,6 +1,8 @@
 package com.android.magicrecyclerview
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
@@ -21,7 +23,7 @@ import com.android.magic_recyclerview.model.Action
 import com.android.magicrecyclerview.model.Anime
 import com.android.magicrecyclerview.ui.AnimeCard
 import com.android.magicrecyclerview.ui.AnimeGridCard
-import com.android.magicrecyclerview.ui.defaultEmptyView
+import com.android.magicrecyclerview.ui.emptyView
 import com.android.magicrecyclerview.ui.theme.MagicRecyclerViewTheme
 
 
@@ -54,7 +56,8 @@ class MainActivity : ComponentActivity() {
                             val tabTitles = listOf("Vertical", "Horizontal", "Grid")
                             Column { // 2.
                                 TabRow(
-                                    selectedTabIndex = tabIndex) { // 3.
+                                    selectedTabIndex = tabIndex
+                                ) { // 3.
                                     tabTitles.forEachIndexed { index, title ->
                                         Tab(
                                             modifier = Modifier.background(Color.White),
@@ -65,9 +68,9 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                                 when (tabIndex) { // 6.
-                                    0 ->   recyclerType = RecyclerType.VERTICAL
-                                    1 ->   recyclerType = RecyclerType.HORIZONTAL
-                                    2 ->   recyclerType = RecyclerType.GRID
+                                    0 -> recyclerType = RecyclerType.VERTICAL
+                                    1 -> recyclerType = RecyclerType.HORIZONTAL
+                                    2 -> recyclerType = RecyclerType.GRID
                                 }
                             }
 
@@ -94,28 +97,50 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun VerticalList(list: List<Anime>) {
 
-    val listItem by remember { mutableStateOf(list) }
+    var listItem by remember { mutableStateOf(list) }
+    var isRefresh by remember { mutableStateOf(false) }
+    val deleteAction = Action<Anime>(
+        { actionText("Delete") },
+        { actionIcon(R.drawable.ic_delete) },
+        onClicked = { position, item ->
+            listItem = listItem.filter {
+                it.anime_id != item.anime_id
+            }
+
+        })
+
+    val archiveAction = Action<Anime>(
+        { actionText("Archive") },
+        { actionIcon(R.drawable.ic_archive) },
+        onClicked = { position, item ->
+            listItem = listItem.filter {
+                it.anime_id != item.anime_id
+            }
+
+        })
+
+
     VerticalRecyclerView(
         modifier = Modifier,
         list = listItem,
         onItemClicked = { item, position ->
         },
         views = { AnimeCard(anime = it) },
-        emptyView = { defaultEmptyView() },
-        paddingBetweenItems = 8f,
-        startActions = listOf(
-            Action(
-                { actionText("Delete") },
-                { actionIcon(R.drawable.ic_delete) },
-                onClicked = { position, item ->
+        emptyView = { emptyView() },
+        isRefreshing = isRefresh,
+        onRefresh = {
+            isRefresh = true
+            Handler(Looper.getMainLooper()).postDelayed({
+                isRefresh = false
+                listItem = DEFAULT_LIST
+            }, 1000)
 
-                }),
-        ),
-        endActions = listOf(
-            Action({ actionText("Like") }, { actionIcon(R.drawable.ic_favorite) })
-        ),
+        },
+        paddingBetweenItems = 8f,
+        startActions = listOf(deleteAction),
+        endActions = listOf(archiveAction),
         startActionBackgroundColor = Color.Red,
-        endActionBackgroundColor = Color.Magenta,
+        endActionBackgroundColor = Color.Green,
         actionBackgroundHeight = 100f,
         paddingVertical = 8f
     )
@@ -147,7 +172,7 @@ fun HorizontalList(list: List<Anime>) {
     HorizontalRecyclerView(
         list = listItem,
         views = { AnimeCard(anime = it) },
-        emptyView = { defaultEmptyView() },
+        emptyView = { emptyView() },
         paddingBetweenItems = 8f,
         paddingVertical = 8f,
         dividerView = {
@@ -165,7 +190,7 @@ fun GridList(list: List<Anime>) {
     GridRecyclerView(
         list = listItem,
         views = { AnimeGridCard(anime = it) },
-        emptyView = { defaultEmptyView() },
+        emptyView = { emptyView() },
         paddingBetweenItems = 8f,
         paddingVertical = 8f,
         columnCount = 2,
