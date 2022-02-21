@@ -15,10 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import com.android.magic_recyclerview.component.magic_recyclerview.GridRecyclerView
-import com.android.magic_recyclerview.component.magic_recyclerview.HorizontalRecyclerView
+import com.android.magic_recyclerview.component.magic_recyclerview.GridEasyList
+import com.android.magic_recyclerview.component.magic_recyclerview.HorizontalEasyList
 import com.android.magic_recyclerview.component.magic_recyclerview.RecyclerType
-import com.android.magic_recyclerview.component.magic_recyclerview.VerticalRecyclerView
+import com.android.magic_recyclerview.component.magic_recyclerview.VerticalEasyList
 import com.android.magic_recyclerview.model.Action
 import com.android.magicrecyclerview.model.Anime
 import com.android.magicrecyclerview.ui.AnimeCard
@@ -120,7 +120,7 @@ fun VerticalList(list: List<Anime>) {
         })
 
 
-    VerticalRecyclerView(
+    VerticalEasyList(
         modifier = Modifier,
         list = listItem,
         onItemClicked = { item, position ->
@@ -169,7 +169,7 @@ fun actionText(text: String?) {
 @Composable
 fun HorizontalList(list: List<Anime>) {
     val listItem by remember { mutableStateOf(list) }
-    HorizontalRecyclerView(
+    HorizontalEasyList(
         list = listItem,
         views = { AnimeCard(anime = it) },
         emptyView = { emptyView() },
@@ -187,7 +187,7 @@ fun HorizontalList(list: List<Anime>) {
 @Composable
 fun GridList(list: List<Anime>) {
     val listItem by remember { mutableStateOf(list) }
-    GridRecyclerView(
+    GridEasyList(
         list = listItem,
         views = { AnimeGridCard(anime = it) },
         emptyView = { emptyView() },

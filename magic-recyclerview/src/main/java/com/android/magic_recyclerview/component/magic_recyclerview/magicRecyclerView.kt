@@ -55,7 +55,7 @@ import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
-fun <T> VerticalRecyclerView(
+fun <T> VerticalEasyList(
     modifier: Modifier = Modifier,
     list: List<T>,
     views: @Composable LazyItemScope.(item: T) -> Unit,
@@ -218,7 +218,7 @@ fun <T> VerticalRecyclerView(
  * scrollTo - scroll to item default is 0.
  */
 @Composable
-fun <T> HorizontalRecyclerView(
+fun <T> HorizontalEasyList(
     modifier: Modifier = Modifier,
     list: List<T>,
     views: @Composable LazyItemScope.(item: T) -> Unit,
@@ -285,7 +285,7 @@ fun <T> HorizontalRecyclerView(
  */
 @ExperimentalFoundationApi
 @Composable
-fun <T> GridRecyclerView(
+fun <T> GridEasyList(
     modifier: Modifier = Modifier,
     list: List<T>,
     views: @Composable (LazyItemScope.(item: T) -> Unit),

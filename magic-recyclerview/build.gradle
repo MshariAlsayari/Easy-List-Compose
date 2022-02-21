@@ -58,8 +58,8 @@ afterEvaluate {
                 from components.release
 
                 groupId = 'com.github.MshariAlsayari'
-                artifactId = 'magic-reccylerview-compose'
-                version = '0.1.2'
+                artifactId = 'Easy-List-Compose'
+                version = '3.0.0'
             }
         }
     }
