@@ -1,4 +1,4 @@
-# Magic-RecyclerView-Compose
+# Easy-List-Compose
 
 
 ## Table of contents
