@@ -1,4 +1,4 @@
-# Magic-RecyclerView-Compose
+# Easy-List-Compose
 
 
 ## Table of contents
@@ -34,7 +34,7 @@ This is an Android Library that's implemented in compose to help you to build a 
 
 
 ## Examples
-There are three types of a Recyclerview ***Vertical, Horizontal and Grid.***.
+There are three types of a List ***Vertical, Horizontal and Grid.***.
 In the vertical list you can make items swappable by adding list of Action onStart or onEnd
 
 
@@ -85,7 +85,7 @@ data class Action<T>(
 
 @ExperimentalMaterialApi
 @Composable
-fun <T> VerticalRecyclerView(
+fun <T> VerticalEasyList(
     modifier: Modifier = Modifier,
     list: List<T>,
     views: @Composable LazyItemScope.(item: T) -> Unit,
@@ -127,7 +127,7 @@ fun <T> VerticalRecyclerView(
  * scrollTo - scroll to item default is 0.
  */
 @Composable
-fun <T> HorizontalRecyclerView(
+fun <T> HorizontalEasyList(
     modifier: Modifier = Modifier,
     list: List<T>,
     views: @Composable LazyItemScope.(item: T) -> Unit,
@@ -164,7 +164,7 @@ fun <T> HorizontalRecyclerView(
  */
 @ExperimentalFoundationApi
 @Composable
-fun <T> GridRecyclerView(
+fun <T> GridEasyList(
     modifier: Modifier = Modifier,
     list: List<T>,
     views: @Composable (LazyItemScope.(item: T) -> Unit),
