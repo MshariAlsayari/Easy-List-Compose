@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
 
                     topBar = {
-                        TopAppBar(title = { Text(text = "Magic Recycler View") })
+                        TopAppBar(title = { Text(text = "Easy List") })
 
                     }
 
