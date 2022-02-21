@@ -1,4 +1,6 @@
 # Easy-List-Compose
+[![](https://jitpack.io/v/MshariAlsayari/Easy-List-Compose.svg)](https://jitpack.io/#MshariAlsayari/Easy-List-Compose)
+
 
 
 ## Table of contents
