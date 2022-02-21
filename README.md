@@ -77,8 +77,8 @@ data class Action<T>(
  * onItemExpanded - callback when the swappable item's been expanded
  * dividerView - (optional) divider between items.
  * emptyView - (optional) emptyview if the list is empty.
- * startActions - list of actions if it is empty no swipe .
- * endActions - list of actions if it is empty no swipe .
+ * startActions - list of actions if it is empty no swipe (3 items at most).
+ * endActions - list of actions if it is empty no swipe (3 items at most).
  * startActionBackgroundColor - background color of the list of the start actions.
  * endActionBackgroundColor - background color of the list of the end actions.
  * actionBackgroundRadiusCorner - radius corner for both start background and end background actions.
