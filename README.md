@@ -42,7 +42,7 @@ This is an Android Library that's implemented in compose to help you to build a 
 
 
 ## Examples
-There are three types of a List ***Vertical, Horizontal and Grid.***.
+There are three types of a List ***Vertical, Horizontal and Grid.***
 In the vertical list you can make items swappable by adding list of Action onStart or onEnd
 
 
