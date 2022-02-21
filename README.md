@@ -1,5 +1,5 @@
-# Easy-List-Compose
-[![](https://jitpack.io/v/MshariAlsayari/Easy-List-Compose.svg)](https://jitpack.io/#MshariAlsayari/Easy-List-Compose)
+# Easy-List-Compose [![](https://jitpack.io/v/MshariAlsayari/Easy-List-Compose.svg)](https://jitpack.io/#MshariAlsayari/Easy-List-Compose)
+
 
 
 
@@ -30,7 +30,7 @@ This is an Android Library that's implemented in compose to help you to build a 
 ```
  dependencies {
      ...
- 	implementation 'com.github.MshariAlsayari:Magic-RecyclerView-Compose:0.1.2' 
+ 	  implementation 'com.github.MshariAlsayari:Easy-List-Compose:3.0.0'
  }
 ```
 
