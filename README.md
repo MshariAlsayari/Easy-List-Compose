@@ -13,7 +13,13 @@
 
 
 ## Introduction
-This is an Android Library that's implemented in compose to help you to build a RecyclerView with some features.
+This is an Android Library that's implemented in compose to help you to build a List with some features.
+
+
+![signal-2022-02-21-141730](https://user-images.githubusercontent.com/32165999/154946820-b11702c4-a144-47fd-9dc1-3736fa269718.gif)
+
+
+
 
 ## Setup
 #### Step1: settings.gradle
