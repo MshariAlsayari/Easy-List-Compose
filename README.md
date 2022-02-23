@@ -83,6 +83,8 @@ data class Action<T>(
  * endActionBackgroundColor - background color of the list of the end actions.
  * actionBackgroundRadiusCorner - radius corner for both start background and end background actions.
  * actionBackgroundHeight - height of the actions background.
+ * isLoading - show loading content progress.
+ * loadingProgress - (optional) if null will show CircularProgressIndicator().
  * isRefreshing - show progress of the swipeRefreshLayout.
  * onRefresh - (optional) callback when the swipeRefreshLayout swapped if null the list will wrapped without the swipeRefreshLayout .
  * paddingBetweenItems - padding between items default is 8f.
@@ -108,6 +110,8 @@ fun <T> VerticalEasyList(
     endActionBackgroundColor: Color = Color.Transparent,
     actionBackgroundRadiusCorner: Float = 0f,
     actionBackgroundHeight: Float = ACTION_HEIGHT,
+    isLoading: Boolean = false,
+    loadingProgress: (@Composable () -> Unit)? = null,
     isRefreshing: Boolean = false,
     onRefresh: (() -> Unit)? = null,
     paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
@@ -132,6 +136,8 @@ fun <T> VerticalEasyList(
  * paddingBetweenItems - padding between items default is 8f.
  * paddingVertical - padding on top and bottom of the whole list default is 0.
  * paddingHorizontal - padding on left and right of the whole list default is 0.
+ * isLoading - show loading content progress.
+ * loadingProgress - (optional) if null will show CircularProgressIndicator().
  * scrollTo - scroll to item default is 0.
  */
 @Composable
@@ -141,6 +147,8 @@ fun <T> HorizontalEasyList(
     views: @Composable LazyItemScope.(item: T) -> Unit,
     emptyView: (@Composable () -> Unit)? = null,
     dividerView: (@Composable () -> Unit)? = null,
+    isLoading: Boolean = false,
+    loadingProgress: (@Composable () -> Unit)? = null,
     paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
     paddingVertical: Float = PADDING_VERTICAL,
     paddingHorizontal: Float = PADDING_HORIZONTAL,
@@ -168,6 +176,8 @@ fun <T> HorizontalEasyList(
  * paddingVertical - padding on top and bottom of the whole list default is 0.
  * paddingHorizontal - padding on left and right of the whole list default is 0.
  * scrollTo - scroll to item default is 0.
+ * isLoading - show loading content progress.
+ * loadingProgress - (optional) if null will show CircularProgressIndicator().
  * columnCount - number of columns default is 2
  */
 @ExperimentalFoundationApi
@@ -183,6 +193,8 @@ fun <T> GridEasyList(
     columnCount: Int = COLUMN_COUNT,
     isRefreshing: Boolean = false,
     onRefresh: (() -> Unit)? = null,
+    isLoading: Boolean = false,
+    loadingProgress: (@Composable () -> Unit)? = null,
     scrollTo: Int = 0,
 )
  
