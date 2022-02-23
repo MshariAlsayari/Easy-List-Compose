@@ -98,7 +98,8 @@ class MainActivity : ComponentActivity() {
 fun VerticalList(list: List<Anime>) {
 
     var listItem by remember { mutableStateOf(list) }
-    var isRefresh by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(true) }
+
     val deleteAction = Action<Anime>(
         { actionText("Delete") },
         { actionIcon(R.drawable.ic_delete) },
@@ -127,15 +128,8 @@ fun VerticalList(list: List<Anime>) {
         },
         views = { AnimeCard(anime = it) },
         emptyView = { emptyView() },
-        isRefreshing = isRefresh,
-        onRefresh = {
-            isRefresh = true
-            Handler(Looper.getMainLooper()).postDelayed({
-                isRefresh = false
-                listItem = DEFAULT_LIST
-            }, 1000)
+        isLoading = isLoading,
 
-        },
         paddingBetweenItems = 8f,
         startActions = listOf(deleteAction),
         endActions = listOf(archiveAction),
@@ -144,6 +138,10 @@ fun VerticalList(list: List<Anime>) {
         actionBackgroundHeight = 100f,
         paddingVertical = 8f
     )
+
+    Handler(Looper.getMainLooper()).postDelayed({
+        isLoading = false
+    }, 1000)
 }
 
 @Composable
@@ -169,16 +167,22 @@ fun actionText(text: String?) {
 @Composable
 fun HorizontalList(list: List<Anime>) {
     val listItem by remember { mutableStateOf(list) }
+    var isLoading by remember { mutableStateOf(true) }
     HorizontalEasyList(
         list = listItem,
         views = { AnimeCard(anime = it) },
         emptyView = { emptyView() },
+        isLoading = isLoading,
         paddingBetweenItems = 8f,
         paddingVertical = 8f,
         dividerView = {
 
         }
     )
+
+    Handler(Looper.getMainLooper()).postDelayed({
+        isLoading = false
+    }, 1000)
 
 }
 
@@ -187,16 +191,22 @@ fun HorizontalList(list: List<Anime>) {
 @Composable
 fun GridList(list: List<Anime>) {
     val listItem by remember { mutableStateOf(list) }
+    var isLoading by remember { mutableStateOf(true) }
     GridEasyList(
         list = listItem,
         views = { AnimeGridCard(anime = it) },
         emptyView = { emptyView() },
+        isLoading = isLoading,
         paddingBetweenItems = 8f,
         paddingVertical = 8f,
         columnCount = 2,
         scrollTo = 3
 
     )
+
+    Handler(Looper.getMainLooper()).postDelayed({
+        isLoading = false
+    }, 1000)
 }
 
 @Composable

@@ -5,6 +5,7 @@ import android.os.Looper
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
@@ -45,6 +46,8 @@ import kotlinx.coroutines.launch
  * endActionBackgroundColor - background color of the list of the end actions.
  * actionBackgroundRadiusCorner - radius corner for both start background and end background actions.
  * actionBackgroundHeight - height of the actions background.
+ * isLoading - show loading content progress.
+ * loadingProgress - (optional) if null will show CircularProgressIndicator().
  * isRefreshing - show progress of the swipeRefreshLayout.
  * onRefresh - (optional) callback when the swipeRefreshLayout swapped if null the list will wrapped without the swipeRefreshLayout .
  * paddingBetweenItems - padding between items default is 8f.
@@ -70,6 +73,8 @@ fun <T> VerticalEasyList(
     endActionBackgroundColor: Color = Color.Transparent,
     actionBackgroundRadiusCorner: Float = 0f,
     actionBackgroundHeight: Float = ACTION_HEIGHT,
+    isLoading: Boolean = false,
+    loadingProgress: (@Composable () -> Unit)? = null,
     isRefreshing: Boolean = false,
     onRefresh: (() -> Unit)? = null,
     paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
@@ -179,12 +184,20 @@ fun <T> VerticalEasyList(
         }
     }
 
+    val progress: (@Composable () -> Unit) = loadingProgress ?: { CircularProgressIndicator() }
+
+
+
 
     if (list.isNotEmpty()) {
 
         if (onRefresh == null) {
 
-            lacyColumn()
+            Box(contentAlignment = Alignment.Center) {
+                lacyColumn()
+                if (isLoading)
+                    progress()
+            }
 
 
         } else { // with refresh layout
@@ -195,7 +208,11 @@ fun <T> VerticalEasyList(
                 onRefresh = { onRefresh() },
             ) {
 
-                lacyColumn()
+                Box(contentAlignment = Alignment.Center) {
+                    lacyColumn()
+                    if (isLoading)
+                        progress()
+                }
             }
 
 
@@ -215,6 +232,8 @@ fun <T> VerticalEasyList(
  * paddingBetweenItems - padding between items default is 8f.
  * paddingVertical - padding on top and bottom of the whole list default is 0.
  * paddingHorizontal - padding on left and right of the whole list default is 0.
+ * isLoading - show loading content progress.
+ * loadingProgress - (optional) if null will show CircularProgressIndicator().
  * scrollTo - scroll to item default is 0.
  */
 @Composable
@@ -227,13 +246,14 @@ fun <T> HorizontalEasyList(
     paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
     paddingVertical: Float = PADDING_VERTICAL,
     paddingHorizontal: Float = PADDING_HORIZONTAL,
+    isLoading: Boolean = false,
+    loadingProgress: (@Composable () -> Unit)? = null,
     scrollTo: Int = 0,
 ) {
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-
-    if (list.isNotEmpty()) {
+    val lazyRow: @Composable () -> Unit = {
         LazyRow(
             modifier = modifier,
             state = listState,
@@ -261,6 +281,18 @@ fun <T> HorizontalEasyList(
 
         }
 
+    }
+    val progress: (@Composable () -> Unit) = loadingProgress ?: { CircularProgressIndicator() }
+
+    if (list.isNotEmpty()) {
+
+        Box(contentAlignment = Alignment.Center) {
+            lazyRow()
+            if (isLoading)
+                progress()
+        }
+
+
     } else {
         EmptyView(emptyView)
 
@@ -281,6 +313,8 @@ fun <T> HorizontalEasyList(
  * paddingVertical - padding on top and bottom of the whole list default is 0.
  * paddingHorizontal - padding on left and right of the whole list default is 0.
  * scrollTo - scroll to item default is 0.
+ * isLoading - show loading content progress.
+ * loadingProgress - (optional) if null will show CircularProgressIndicator().
  * columnCount - number of columns default is 2
  */
 @ExperimentalFoundationApi
@@ -296,6 +330,8 @@ fun <T> GridEasyList(
     columnCount: Int = COLUMN_COUNT,
     isRefreshing: Boolean = false,
     onRefresh: (() -> Unit)? = null,
+    isLoading: Boolean = false,
+    loadingProgress: (@Composable () -> Unit)? = null,
     scrollTo: Int = 0,
 ) {
     val listState = rememberLazyListState()
@@ -324,16 +360,26 @@ fun <T> GridEasyList(
         }
     }
 
+    val progress: (@Composable () -> Unit) = loadingProgress ?: { CircularProgressIndicator() }
+
     if (list.isNotEmpty()) {
 
         if (onRefresh == null) {
-            gridList()
+            Box(contentAlignment = Alignment.Center) {
+                gridList()
+                if (isLoading)
+                    progress()
+            }
         } else {
             SwipeRefresh(
                 state = rememberSwipeRefreshState(isRefreshing),
                 onRefresh = { onRefresh() },
             ) {
-                gridList()
+                Box(contentAlignment = Alignment.Center) {
+                    gridList()
+                    if (isLoading)
+                        progress()
+                }
 
             }
         }
