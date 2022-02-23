@@ -36,7 +36,7 @@ This is an Android Library that's implemented in compose to help you to build a 
 ```
  dependencies {
      ...
- 	  implementation 'com.github.MshariAlsayari:Easy-List-Compose:3.0.0'
+ 	  implementation 'com.github.MshariAlsayari:Easy-List-Compose:<last-version>'
  }
 ```
 
