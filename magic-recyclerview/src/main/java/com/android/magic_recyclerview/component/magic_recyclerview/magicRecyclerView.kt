@@ -83,6 +83,14 @@ fun <T> VerticalEasyList(
     scrollTo: Int = 0,
 ) {
 
+    if (startActions.size > 3) {
+        throw Exception("the start list action length is > 3 it must be 3 or less")
+    }
+
+    if (endActions.size > 3) {
+        throw Exception("the end list action length is > 3 it must be 3 or less")
+    }
+
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val isArabic = LocalLayoutDirection.current == LayoutDirection.Rtl
