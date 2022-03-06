@@ -131,8 +131,8 @@ fun VerticalList(list: List<Anime>) {
         isLoading = isLoading,
 
         paddingBetweenItems = 8f,
-        startActions = listOf(deleteAction),
-        endActions = listOf(archiveAction),
+        startActions = listOf(deleteAction, deleteAction, deleteAction),
+        endActions = listOf(archiveAction, archiveAction, archiveAction),
         startActionBackgroundColor = Color.Red,
         endActionBackgroundColor = Color.Green,
         actionBackgroundHeight = 100f,
