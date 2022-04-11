@@ -58,6 +58,7 @@ In the vertical list you can make items swappable by adding list of Action onSta
 data class Action<T>(
     val text: (@Composable () -> Unit)? = null,
     val icon: (@Composable () -> Unit)? = null,
+    val backgroundColor: Color = Color.Transparent,
     val onClicked: ((position: Int, item: T) -> Unit)? = null,
     val actionSize: Dp = ACTION_ICON_SIZE.dp
 )
@@ -80,8 +81,6 @@ data class Action<T>(
  * emptyView - (optional) emptyview if the list is empty.
  * startActions - list of actions if it is empty no swipe (3 items at most).
  * endActions - list of actions if it is empty no swipe (3 items at most).
- * startActionBackgroundColor - background color of the list of the start actions.
- * endActionBackgroundColor - background color of the list of the end actions.
  * actionBackgroundRadiusCorner - radius corner for both start background and end background actions.
  * actionBackgroundHeight - height of the actions background.
  * isLoading - show loading content progress.
@@ -107,8 +106,6 @@ fun <T> VerticalEasyList(
     emptyView: (@Composable () -> Unit)? = null,
     startActions: List<Action<T>> = listOf(),
     endActions: List<Action<T>> = listOf(),
-    startActionBackgroundColor: Color = Color.Transparent,
-    endActionBackgroundColor: Color = Color.Transparent,
     actionBackgroundRadiusCorner: Float = 0f,
     actionBackgroundHeight: Float = ACTION_HEIGHT,
     isLoading: Boolean = false,

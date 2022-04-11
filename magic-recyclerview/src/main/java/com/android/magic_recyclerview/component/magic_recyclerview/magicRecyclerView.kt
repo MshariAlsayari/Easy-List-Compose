@@ -69,8 +69,6 @@ fun <T> VerticalEasyList(
     emptyView: (@Composable () -> Unit)? = null,
     startActions: List<Action<T>> = listOf(),
     endActions: List<Action<T>> = listOf(),
-    startActionBackgroundColor: Color = Color.Transparent,
-    endActionBackgroundColor: Color = Color.Transparent,
     actionBackgroundRadiusCorner: Float = 0f,
     actionBackgroundHeight: Float = ACTION_HEIGHT,
     isLoading: Boolean = false,
@@ -108,23 +106,23 @@ fun <T> VerticalEasyList(
 
 
             itemsIndexed(list) { index, item ->
-
-                Column(Modifier.fillMaxSize()) {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Row(
                             modifier = Modifier.fillMaxSize(),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+
+                            ) {
                             ActionsRow(
                                 modifier = Modifier
-                                    .fillMaxHeight()
-                                    .weight(1f, true)
-                                    .height(actionBackgroundHeight.dp),
+                                    .weight(1f, true),
+
                                 item = item,
                                 position = index,
                                 radiusCorner = actionBackgroundRadiusCorner,
-                                backgroundColor = startActionBackgroundColor,
+                                actionHeight = actionBackgroundHeight,
                                 actions = startActions,
                                 isActionClicked = {
                                     isActionClicked.value = true
@@ -135,13 +133,12 @@ fun <T> VerticalEasyList(
                             )
                             ActionsRow(
                                 modifier = Modifier
-                                    .fillMaxHeight()
-                                    .weight(1f, true)
-                                    .height(actionBackgroundHeight.dp),
+                                    .weight(1f, true),
+
                                 item = item,
                                 position = index,
                                 radiusCorner = actionBackgroundRadiusCorner,
-                                backgroundColor = endActionBackgroundColor,
+                                actionHeight = actionBackgroundHeight,
                                 actions = endActions,
                                 isActionClicked = {
                                     isActionClicked.value = true

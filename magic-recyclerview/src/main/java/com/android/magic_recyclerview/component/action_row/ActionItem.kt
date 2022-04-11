@@ -1,5 +1,6 @@
 package com.android.magic_recyclerview.component.action_row
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
@@ -12,6 +13,7 @@ import com.android.magic_recyclerview.model.Action
 
 @Composable
 fun <T> ActionItem(
+    modifier: Modifier,
     action: Action<T>,
     onClicked: (position: Int, item: T) -> Unit,
     item: T,
@@ -19,7 +21,7 @@ fun <T> ActionItem(
 ) {
 
     IconButton(
-        modifier = Modifier.size(action.actionSize),
+        modifier = modifier,
         onClick = {
             onClicked(position, item)
         },

@@ -2,8 +2,9 @@ package com.android.magic_recyclerview.component.action_row
 
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.runtime.Composable
@@ -21,42 +22,43 @@ fun <T> ActionsRow(
     position: Int,
     actions: List<Action<T>>,
     radiusCorner: Float = 0f,
-    backgroundColor: Color,
+    actionHeight: Float,
     isActionClicked: (() -> Unit)? = null
 ) {
 
     Card(
         modifier = modifier,
-        backgroundColor = backgroundColor,
         shape = RoundedCornerShape(radiusCorner.dp),
     ) {
 
         Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = modifier,
             verticalAlignment = Alignment.CenterVertically
         ) {
 
 
-            for (i in 0..2) {
-                if (actions.getOrNull(i) != null) {
-                    ActionItem(
-                        action = actions[i],
-                        onClicked = { position, item ->
-                            isActionClicked?.invoke()
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                actions[i].onClicked?.invoke(
-                                    position,
-                                    item
-                                )
-                            }, Constants.SWIPE_ANIMATION_DURATION.toLong())
+            actions.forEach {
+                ActionItem(
+                    modifier = Modifier
+                        .weight(1f, true)
+                        .background(it.backgroundColor)
+                        .height (actionHeight.dp)
+                    . size (it.actionSize),
+                action = it,
+                onClicked = { position, item ->
+                    isActionClicked?.invoke()
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        it.onClicked?.invoke(
+                            position,
+                            item
+                        )
+                    }, Constants.SWIPE_ANIMATION_DURATION.toLong())
 
 
-                        },
-                        item = item,
-                        position = position
-                    )
-
-                }
+                },
+                item = item,
+                position = position
+                )
             }
 
 

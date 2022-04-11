@@ -100,9 +100,10 @@ fun VerticalList(list: List<Anime>) {
     var listItem by remember { mutableStateOf(list) }
     var isLoading by remember { mutableStateOf(true) }
 
-    val deleteAction = Action<Anime>(
+    val deleteAction1 = Action<Anime>(
         { actionText("Delete") },
         { actionIcon(R.drawable.ic_delete) },
+        backgroundColor = colorResource(R.color.color_action_4),
         onClicked = { position, item ->
             listItem = listItem.filter {
                 it.anime_id != item.anime_id
@@ -110,9 +111,56 @@ fun VerticalList(list: List<Anime>) {
 
         })
 
-    val archiveAction = Action<Anime>(
+
+    val deleteAction2 = Action<Anime>(
+        { actionText("Delete") },
+        { actionIcon(R.drawable.ic_delete) },
+        backgroundColor = colorResource(R.color.color_action_5),
+        onClicked = { position, item ->
+            listItem = listItem.filter {
+                it.anime_id != item.anime_id
+            }
+
+        })
+
+
+    val deleteAction3 = Action<Anime>(
+        { actionText("Delete") },
+        { actionIcon(R.drawable.ic_delete) },
+        backgroundColor = colorResource(R.color.color_action_6),
+        onClicked = { position, item ->
+            listItem = listItem.filter {
+                it.anime_id != item.anime_id
+            }
+
+        })
+
+    val archiveAction1 = Action<Anime>(
         { actionText("Archive") },
         { actionIcon(R.drawable.ic_archive) },
+        backgroundColor = colorResource(R.color.color_action_1),
+        onClicked = { position, item ->
+            listItem = listItem.filter {
+                it.anime_id != item.anime_id
+            }
+
+        })
+
+    val archiveAction2 = Action<Anime>(
+        { actionText("Archive") },
+        { actionIcon(R.drawable.ic_archive) },
+        backgroundColor = colorResource(R.color.color_action_2),
+        onClicked = { position, item ->
+            listItem = listItem.filter {
+                it.anime_id != item.anime_id
+            }
+
+        })
+
+    val archiveAction3 = Action<Anime>(
+        { actionText("Archive") },
+        { actionIcon(R.drawable.ic_archive) },
+        backgroundColor = colorResource(R.color.color_action_3),
         onClicked = { position, item ->
             listItem = listItem.filter {
                 it.anime_id != item.anime_id
@@ -129,12 +177,9 @@ fun VerticalList(list: List<Anime>) {
         views = { AnimeCard(anime = it) },
         emptyView = { emptyView() },
         isLoading = isLoading,
-
         paddingBetweenItems = 8f,
-        startActions = listOf(deleteAction, deleteAction, deleteAction),
-        endActions = listOf(archiveAction, archiveAction, archiveAction),
-        startActionBackgroundColor = Color.Red,
-        endActionBackgroundColor = Color.Green,
+        startActions = listOf(deleteAction1, deleteAction2, deleteAction3),
+        endActions = listOf(archiveAction1, archiveAction2, archiveAction3),
         actionBackgroundHeight = 100f,
         paddingVertical = 8f
     )
