@@ -83,7 +83,6 @@ data class Action<T>(
  * startActions - list of actions if it is empty no swipe (3 items at most).
  * endActions - list of actions if it is empty no swipe (3 items at most).
  * actionBackgroundRadiusCorner - radius corner for both start background and end background actions.
- * actionBackgroundHeight - height of the actions background.
  * isLoading - show loading content progress.
  * loadingProgress - (optional) if null will show CircularProgressIndicator().
  * isRefreshing - show progress of the swipeRefreshLayout.
