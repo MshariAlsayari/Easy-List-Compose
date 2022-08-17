@@ -11,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -29,9 +30,11 @@ import com.android.magicrecyclerview.ui.theme.MagicRecyclerViewTheme
 
 var DEFAULT_LIST = DataProvider.itemList
 
+@ExperimentalComposeUiApi
+@ExperimentalMaterialApi
+@ExperimentalFoundationApi
 class MainActivity : ComponentActivity() {
-    @ExperimentalMaterialApi
-    @ExperimentalFoundationApi
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -93,6 +96,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable
 fun VerticalList(list: List<Anime>) {
@@ -177,10 +181,8 @@ fun VerticalList(list: List<Anime>) {
         views = { AnimeCard(anime = it) },
         emptyView = { emptyView() },
         isLoading = isLoading,
-        paddingBetweenItems = 8f,
         startActions = listOf(deleteAction1, deleteAction2, deleteAction3),
         endActions = listOf(archiveAction1, archiveAction2, archiveAction3),
-        actionBackgroundHeight = 100f,
         paddingVertical = 8f
     )
 

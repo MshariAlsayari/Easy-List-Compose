@@ -13,12 +13,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.android.magic_recyclerview.Constants.ACTION_HEIGHT
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import com.android.magic_recyclerview.Constants.COLUMN_COUNT
 import com.android.magic_recyclerview.Constants.PADDING_BETWEEN_ITEMS
 import com.android.magic_recyclerview.Constants.PADDING_HORIZONTAL
@@ -56,6 +57,7 @@ import kotlinx.coroutines.launch
  * scrollTo - scroll to item default is 0.
  */
 
+@ExperimentalComposeUiApi
 @ExperimentalMaterialApi
 @Composable
 fun <T> VerticalEasyList(
@@ -70,7 +72,6 @@ fun <T> VerticalEasyList(
     startActions: List<Action<T>> = listOf(),
     endActions: List<Action<T>> = listOf(),
     actionBackgroundRadiusCorner: Float = 0f,
-    actionBackgroundHeight: Float = ACTION_HEIGHT,
     isLoading: Boolean = false,
     loadingProgress: (@Composable () -> Unit)? = null,
     isRefreshing: Boolean = false,
@@ -106,75 +107,95 @@ fun <T> VerticalEasyList(
 
 
             itemsIndexed(list) { index, item ->
-                Column {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxSize(),
 
-                            ) {
-                            ActionsRow(
-                                modifier = Modifier
-                                    .weight(1f, true),
 
-                                item = item,
-                                position = index,
-                                radiusCorner = actionBackgroundRadiusCorner,
-                                actionHeight = actionBackgroundHeight,
-                                actions = startActions,
-                                isActionClicked = {
-                                    isActionClicked.value = true
-                                    Handler(Looper.getMainLooper()).postDelayed({
-                                        isActionClicked.value = false
-                                    }, 1000)
-                                }
-                            )
-                            ActionsRow(
-                                modifier = Modifier
-                                    .weight(1f, true),
+                ConstraintLayout {
+                    val (actionContainer, swappableItemContainer, divider) = createRefs()
+                    Row(
+                        modifier = Modifier.constrainAs(actionContainer) {
+                            top.linkTo(swappableItemContainer.top)
+                            bottom.linkTo(swappableItemContainer.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            height = Dimension.fillToConstraints
 
-                                item = item,
-                                position = index,
-                                radiusCorner = actionBackgroundRadiusCorner,
-                                actionHeight = actionBackgroundHeight,
-                                actions = endActions,
-                                isActionClicked = {
-                                    isActionClicked.value = true
-                                    Handler(Looper.getMainLooper()).postDelayed({
-                                        isActionClicked.value = false
-                                    }, 1000)
-                                }
-                            )
 
-                        }
+                        },
 
-                        SwappableItem(
-                            modifier = modifier,
+                        ) {
+                        ActionsRow(
+                            modifier = Modifier
+                                .weight(1f),
+
                             item = item,
-                            mainItem = { views(item) },
-                            isActionClicked = isActionClicked.value,
-                            onCollapsed = { item ->
-                                onItemCollapsed?.invoke(item, index)
-                            },
-                            onExpanded = { type, item ->
-                                onItemExpanded?.invoke(item, index, type)
-                            },
-                            enableLTRSwipe = if (isArabic) endActions.isNotEmpty() else startActions.isNotEmpty(),
-                            enableRTLSwipe = if (isArabic) startActions.isNotEmpty() else endActions.isNotEmpty(),
-                            onItemClicked = {
-                                onItemClicked(it, index)
+                            position = index,
+                            radiusCorner = actionBackgroundRadiusCorner,
+                            actions = startActions,
+                            isActionClicked = {
+                                isActionClicked.value = true
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    isActionClicked.value = false
+                                }, 1000)
                             }
                         )
+                        ActionsRow(
+                            modifier = Modifier
+                                .weight(1f),
+
+                            item = item,
+                            position = index,
+                            radiusCorner = actionBackgroundRadiusCorner,
+                            actions = endActions,
+                            isActionClicked = {
+                                isActionClicked.value = true
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    isActionClicked.value = false
+                                }, 1000)
+                            }
+                        )
+
                     }
 
+
+                    SwappableItem(
+                        modifier = modifier.constrainAs(swappableItemContainer) {
+                            top.linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+
+
+                        },
+                        item = item,
+                        mainItem = { views(item) },
+                        isActionClicked = isActionClicked.value,
+                        onCollapsed = { item ->
+                            onItemCollapsed?.invoke(item, index)
+                        },
+                        onExpanded = { type, item ->
+                            onItemExpanded?.invoke(item, index, type)
+                        },
+                        enableLTRSwipe = if (isArabic) endActions.isNotEmpty() else startActions.isNotEmpty(),
+                        enableRTLSwipe = if (isArabic) startActions.isNotEmpty() else endActions.isNotEmpty(),
+                        onItemClicked = {
+                            onItemClicked(it, index)
+                        },
+                    )
+
                     if (index != list.lastIndex && dividerView != null) {
-                        Surface(modifier = Modifier.padding(top = paddingBetweenItems.dp)) {
+                        Surface(modifier = Modifier
+                            .padding(top = paddingBetweenItems.dp)
+                            .constrainAs(divider) {
+                                start.linkTo(parent.start)
+                                end.linkTo(parent.end)
+                                top.linkTo(swappableItemContainer.bottom)
+                            }
+                        ) {
                             dividerView()
                         }
 
                     }
+
                 }
 
 
