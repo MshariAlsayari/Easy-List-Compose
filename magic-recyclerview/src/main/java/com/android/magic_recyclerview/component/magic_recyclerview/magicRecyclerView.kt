@@ -225,7 +225,7 @@ fun <T> VerticalEasyList(
         ) {
 
             if (isLoading)
-                progress()
+                LoadingView(progress)
             else{
                 if (list.isNotEmpty()) {
                     lacyColumn()
@@ -306,7 +306,7 @@ fun <T> HorizontalEasyList(
     val progress: (@Composable () -> Unit) = loadingProgress ?: { CircularProgressIndicator() }
     Box(contentAlignment = Alignment.Center) {
         if (isLoading)
-            progress()
+            LoadingView(progress)
         else {
             if (list.isNotEmpty()) {
                 lazyRow()
@@ -390,7 +390,7 @@ fun <T> GridEasyList(
                 Box(contentAlignment = Alignment.Center) {
 
                     if (isLoading)
-                        progress()
+                        LoadingView(progress)
                     else{
                         if (list.isNotEmpty()){
                             gridList()
@@ -405,6 +405,18 @@ fun <T> GridEasyList(
 
 
 
+}
+
+@Composable
+fun LoadingView(view: (@Composable () -> Unit)? = null) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        view?.invoke()
+    }
 }
 
 @Composable
