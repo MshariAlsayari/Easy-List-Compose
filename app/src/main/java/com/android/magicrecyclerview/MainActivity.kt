@@ -3,6 +3,7 @@ package com.android.magicrecyclerview
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
@@ -103,6 +104,7 @@ fun VerticalList(list: List<Anime>) {
 
     var listItem by remember { mutableStateOf(list) }
     var isLoading by remember { mutableStateOf(true) }
+    var isRefreshing by remember { mutableStateOf(false) }
 
     val deleteAction1 = Action<Anime>(
         { actionText("Delete") },
@@ -181,6 +183,13 @@ fun VerticalList(list: List<Anime>) {
         views = { AnimeCard(anime = it) },
         emptyView = { emptyView() },
         isLoading = isLoading,
+        isRefreshing = isRefreshing,
+        onRefresh={
+                  isRefreshing = true
+            Handler(Looper.getMainLooper()).postDelayed({
+                isRefreshing = false
+            }, 2000)
+        },
         startActions = listOf(deleteAction1, deleteAction2, deleteAction3),
         endActions = listOf(archiveAction1, archiveAction2, archiveAction3),
         paddingVertical = 8f

@@ -5,6 +5,8 @@ import android.os.Looper
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
@@ -94,6 +96,7 @@ fun <T> VerticalEasyList(
     val coroutineScope = rememberCoroutineScope()
     val isArabic = LocalLayoutDirection.current == LayoutDirection.Rtl
     val isActionClicked = remember { mutableStateOf(false) }
+    val progress: (@Composable () -> Unit) = loadingProgress ?: { CircularProgressIndicator() }
     val lacyColumn: @Composable () -> Unit = {
         LazyColumn(
             modifier = modifier,
@@ -210,42 +213,37 @@ fun <T> VerticalEasyList(
         }
     }
 
-    val progress: (@Composable () -> Unit) = loadingProgress ?: { CircularProgressIndicator() }
-
-
-
-
-    if (list.isNotEmpty()) {
-
-        if (onRefresh == null) {
-
-            Box(contentAlignment = Alignment.Center) {
-                lacyColumn()
-                if (isLoading)
-                    progress()
-            }
-
-
-        } else { // with refresh layout
-
 
             SwipeRefresh(
                 state = rememberSwipeRefreshState(isRefreshing),
-                onRefresh = { onRefresh() },
+                swipeEnabled = onRefresh != null,
+                onRefresh = {
+                    if (onRefresh != null) {
+                        onRefresh()
+                    }
+                },
             ) {
 
-                Box(contentAlignment = Alignment.Center) {
-                    lacyColumn()
+                Box(
+                    contentAlignment = Alignment.Center) {
+
+                    if (list.isEmpty()) {
+                        EmptyView(emptyView)
+                    } else {
+                        lacyColumn()
+
+                }
+
+
+
                     if (isLoading)
                         progress()
                 }
             }
 
 
-        }
-    } else { // if list is empty
-        EmptyView(emptyView)
-    }
+
+
 
 }
 
@@ -421,7 +419,9 @@ fun <T> GridEasyList(
 @Composable
 fun EmptyView(view: (@Composable () -> Unit)? = null) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
