@@ -214,35 +214,32 @@ fun <T> VerticalEasyList(
     }
 
 
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(isRefreshing),
-                swipeEnabled = onRefresh != null,
-                onRefresh = {
-                    if (onRefresh != null) {
-                        onRefresh()
-                    }
-                },
-            ) {
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing),
+        swipeEnabled = onRefresh != null,
+        onRefresh = { onRefresh?.invoke() },
+    ) {
 
-                Box(
-                    contentAlignment = Alignment.Center) {
+        Box(
+            contentAlignment = Alignment.Center
+        ) {
 
-                    if (list.isEmpty()) {
-                        EmptyView(emptyView)
-                    } else {
-                        lacyColumn()
-
-                }
-
-
-
-                    if (isLoading)
-                        progress()
+            if (isLoading)
+                progress()
+            else{
+                if (list.isNotEmpty()) {
+                    lacyColumn()
+                } else {
+                    EmptyView(emptyView)
                 }
             }
 
 
 
+
+
+        }
+    }
 
 
 }
@@ -307,20 +304,18 @@ fun <T> HorizontalEasyList(
 
     }
     val progress: (@Composable () -> Unit) = loadingProgress ?: { CircularProgressIndicator() }
-
-    if (list.isNotEmpty()) {
-
-        Box(contentAlignment = Alignment.Center) {
-            lazyRow()
-            if (isLoading)
-                progress()
+    Box(contentAlignment = Alignment.Center) {
+        if (isLoading)
+            progress()
+        else {
+            if (list.isNotEmpty()) {
+                lazyRow()
+            } else {
+                EmptyView(emptyView)
+            }
         }
-
-
-    } else {
-        EmptyView(emptyView)
-
     }
+
 
 }
 
@@ -386,33 +381,29 @@ fun <T> GridEasyList(
 
     val progress: (@Composable () -> Unit) = loadingProgress ?: { CircularProgressIndicator() }
 
-    if (list.isNotEmpty()) {
 
-        if (onRefresh == null) {
-            Box(contentAlignment = Alignment.Center) {
-                gridList()
-                if (isLoading)
-                    progress()
-            }
-        } else {
             SwipeRefresh(
                 state = rememberSwipeRefreshState(isRefreshing),
-                onRefresh = { onRefresh() },
+                swipeEnabled = onRefresh != null,
+                onRefresh = { onRefresh?.invoke() },
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    gridList()
+
                     if (isLoading)
                         progress()
+                    else{
+                        if (list.isNotEmpty()){
+                            gridList()
+                        }else
+                            EmptyView(emptyView)
+                    }
                 }
 
             }
-        }
 
 
-    } else {
-        EmptyView(emptyView)
 
-    }
+
 
 }
 
