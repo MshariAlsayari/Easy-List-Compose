@@ -3,7 +3,6 @@ package com.android.magicrecyclerview
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
@@ -180,7 +179,7 @@ fun VerticalList(list: List<Anime>) {
         list = listItem,
         onItemClicked = { item, position ->
         },
-        views = { AnimeCard(anime = it) },
+        view = { AnimeCard(anime = it) },
         emptyView = { emptyView() },
         isLoading = isLoading,
         isRefreshing = isRefreshing,

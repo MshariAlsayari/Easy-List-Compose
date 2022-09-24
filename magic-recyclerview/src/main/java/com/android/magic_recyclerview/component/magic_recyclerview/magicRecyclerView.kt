@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 /***
  * modifier - the modifier to apply to this layout.
  * list -  list of data.
- * views - the data view holder.
+ * view - the data view holder.
  * onItemClicked - callback when the swappable item's been clicked
  * onItemCollapsed - callback when the swappable item's been collapsed
  * onItemExpanded - callback when the swappable item's been expanded
@@ -65,7 +65,7 @@ import kotlinx.coroutines.launch
 fun <T> VerticalEasyList(
     modifier: Modifier = Modifier,
     list: List<T>,
-    views: @Composable LazyItemScope.(item: T) -> Unit,
+    view: @Composable (T) -> Unit,
     onItemClicked: (item: T, position: Int) -> Unit,
     onItemCollapsed: ((item: T, position: Int) -> Unit)? = null,
     onItemExpanded: ((item: T, position: Int, type: ActionRowType) -> Unit)? = null,
@@ -170,7 +170,7 @@ fun <T> VerticalEasyList(
 
                         },
                         item = item,
-                        mainItem = { views(item) },
+                        mainItem = { view(item) },
                         isActionClicked = isActionClicked.value,
                         onCollapsed = { item ->
                             onItemCollapsed?.invoke(item, index)
@@ -247,7 +247,7 @@ fun <T> VerticalEasyList(
 /***
  * modifier - the modifier to apply to this layout.
  * list -  list of data.
- * views - the data view holder.
+ * view - the data view holder.
  * dividerView - (optional) divider between items.
  * emptyView - (optional) emptyview if the list is empty.
  * paddingBetweenItems - padding between items default is 8f.
@@ -261,7 +261,7 @@ fun <T> VerticalEasyList(
 fun <T> HorizontalEasyList(
     modifier: Modifier = Modifier,
     list: List<T>,
-    views: @Composable LazyItemScope.(item: T) -> Unit,
+    view: @Composable (T) -> Unit,
     emptyView: (@Composable () -> Unit)? = null,
     dividerView: (@Composable () -> Unit)? = null,
     paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
@@ -285,7 +285,7 @@ fun <T> HorizontalEasyList(
             )
         ) {
             itemsIndexed(list) { index, item ->
-                views(item)
+                view(item)
                 if (index != list.lastIndex) {
                     Surface(modifier = Modifier.padding(start = paddingBetweenItems.dp)) {
                         dividerView?.invoke()
@@ -322,7 +322,7 @@ fun <T> HorizontalEasyList(
 /***
  * modifier - the modifier to apply to this layout.
  * list -  list of data.
- * views - the data view holder.
+ * view - the data view holder.
  * dividerView - (optional) divider between items.
  * emptyView - (optional) emptyview if the list is empty.
  * actionBackgroundHeight - height of the actions background.
@@ -341,7 +341,7 @@ fun <T> HorizontalEasyList(
 fun <T> GridEasyList(
     modifier: Modifier = Modifier,
     list: List<T>,
-    views: @Composable (LazyItemScope.(item: T) -> Unit),
+    view: @Composable (T) -> Unit,
     emptyView: @Composable (() -> Unit)? = null,
     paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
     paddingVertical: Float = PADDING_VERTICAL,
@@ -370,7 +370,7 @@ fun <T> GridEasyList(
             items(
                 items = list,
                 itemContent = {
-                    views(it)
+                    view(it)
                 })
 
             coroutineScope.launch {
