@@ -225,7 +225,7 @@ fun HorizontalList(list: List<Anime>) {
     var isLoading by remember { mutableStateOf(true) }
     HorizontalEasyList(
         list = listItem,
-        views = { AnimeCard(anime = it) },
+        view = { AnimeCard(anime = it) },
         emptyView = { emptyView() },
         isLoading = isLoading,
         paddingBetweenItems = 8f,
@@ -249,7 +249,7 @@ fun GridList(list: List<Anime>) {
     var isLoading by remember { mutableStateOf(true) }
     GridEasyList(
         list = listItem,
-        views = { AnimeGridCard(anime = it) },
+        view = { AnimeGridCard(anime = it) },
         emptyView = { emptyView() },
         isLoading = isLoading,
         paddingBetweenItems = 8f,
