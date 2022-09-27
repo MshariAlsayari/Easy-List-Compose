@@ -110,6 +110,7 @@ fun VerticalList(list: List<Anime>) {
     var isLoading by remember { mutableStateOf(true) }
     var isRefreshing by remember { mutableStateOf(false) }
     val listStateAble = remember { mutableStateListOf<Anime>() }
+    var test by remember { mutableStateOf(1) }
     LaunchedEffect(key1 = Unit ){
         listStateAble.addAll(list)
     }
@@ -192,8 +193,13 @@ fun VerticalList(list: List<Anime>) {
         },
         onLastReached = {
             Log.i("VerticalList", "Last Reached")
+
             Handler(Looper.getMainLooper()).postDelayed({
-                listStateAble.addAll(list.subList(0,6))
+                if (test  == 1) {
+                    listStateAble.addAll(list.subList(0, 6))
+                    test++
+                }else
+                    listStateAble.addAll(emptyList())
             }, 2000)
 
         },
@@ -265,6 +271,10 @@ fun HorizontalList(list: List<Anime>) {
 fun GridList(list: List<Anime>) {
     val listItem by remember { mutableStateOf(list) }
     var isLoading by remember { mutableStateOf(true) }
+    val listStateAble = remember { mutableStateListOf<Anime>() }
+    LaunchedEffect(key1 = Unit ){
+        listStateAble.addAll(list)
+    }
     GridEasyList(
         list = listItem,
         view = { AnimeGridCard(anime = it) },
@@ -273,7 +283,18 @@ fun GridList(list: List<Anime>) {
         paddingBetweenItems = 8f,
         paddingVertical = 8f,
         columnCount = 2,
-        scrollTo = 3
+        scrollTo = 0,
+        onItemClicked = {item,position->
+            Log.i("Mshari"," item Clicked")
+
+        },
+        onLastReached = {
+            Log.i("VerticalList", "Last Reached")
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                listStateAble.addAll(list.subList(0, 6))
+            }, 2000)
+        }
 
     )
 
