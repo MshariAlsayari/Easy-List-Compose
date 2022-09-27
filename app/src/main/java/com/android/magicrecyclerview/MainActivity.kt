@@ -3,6 +3,7 @@ package com.android.magicrecyclerview
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
@@ -37,6 +38,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val testList = mutableListOf<Anime>()
+        for (i in 1..5){
+            testList.addAll(DEFAULT_LIST.map { it })
+        }
 
         setContent {
             MagicRecyclerViewTheme {
@@ -80,9 +85,9 @@ class MainActivity : ComponentActivity() {
 
 
                             when (recyclerType) {
-                                RecyclerType.VERTICAL -> VerticalList(DEFAULT_LIST)
-                                RecyclerType.HORIZONTAL -> HorizontalList(DEFAULT_LIST)
-                                RecyclerType.GRID -> GridList(DEFAULT_LIST)
+                                RecyclerType.VERTICAL -> VerticalList(testList)
+                                RecyclerType.HORIZONTAL -> HorizontalList(testList)
+                                RecyclerType.GRID -> GridList(testList)
                             }
                         }
 
@@ -104,6 +109,11 @@ fun VerticalList(list: List<Anime>) {
     var listItem by remember { mutableStateOf(list) }
     var isLoading by remember { mutableStateOf(true) }
     var isRefreshing by remember { mutableStateOf(false) }
+    val listStateAble = remember { mutableStateListOf<Anime>() }
+    LaunchedEffect(key1 = Unit ){
+        listStateAble.addAll(list)
+    }
+
 
     val deleteAction1 = Action<Anime>(
         { actionText("Delete") },
@@ -176,8 +186,16 @@ fun VerticalList(list: List<Anime>) {
 
     VerticalEasyList(
         modifier = Modifier,
-        list = listItem,
+        list = listStateAble,
         onItemClicked = { item, position ->
+            Log.i("VerticalList", "Clicked")
+        },
+        onLastReached = {
+            Log.i("VerticalList", "Last Reached")
+            Handler(Looper.getMainLooper()).postDelayed({
+                listStateAble.addAll(list.subList(0,6))
+            }, 2000)
+
         },
         view = { AnimeCard(anime = it) },
         emptyView = { emptyView() },
@@ -196,7 +214,7 @@ fun VerticalList(list: List<Anime>) {
 
     Handler(Looper.getMainLooper()).postDelayed({
         isLoading = false
-    }, 1000)
+    }, 2000)
 }
 
 @Composable

@@ -123,8 +123,11 @@ fun <T> SwappableItem(
             )
             .clickable {
                 coroutineScope.launch {
+                    if (swappableState.currentValue == SwipeDirection.NON ){
+                        onItemClicked(item)
+                    }
                     swappableState.animateTo(SwipeDirection.NON)
-                    onItemClicked(item)
+
                 }
             }
     ) {

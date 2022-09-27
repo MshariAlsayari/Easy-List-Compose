@@ -2,6 +2,9 @@ package com.android.magic_recyclerview.component.magic_recyclerview
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
+import androidx.compose.animation.core.FloatExponentialDecaySpec
+import androidx.compose.animation.core.animateDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -10,15 +13,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -32,6 +37,7 @@ import com.android.magic_recyclerview.component.swippable_item.SwappableItem
 import com.android.magic_recyclerview.model.Action
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 
 /***
@@ -63,25 +69,27 @@ import kotlinx.coroutines.launch
 @ExperimentalMaterialApi
 @Composable
 fun <T> VerticalEasyList(
-    modifier: Modifier = Modifier,
-    list: List<T>,
-    view: @Composable (T) -> Unit,
-    onItemClicked: (item: T, position: Int) -> Unit,
-    onItemCollapsed: ((item: T, position: Int) -> Unit)? = null,
-    onItemExpanded: ((item: T, position: Int, type: ActionRowType) -> Unit)? = null,
-    dividerView: (@Composable () -> Unit)? = null,
-    emptyView: (@Composable () -> Unit)? = null,
-    startActions: List<Action<T>> = listOf(),
-    endActions: List<Action<T>> = listOf(),
+    modifier                    : Modifier = Modifier,
+    list                        : List<T>,
+    view                        : @Composable (T) -> Unit,
+    dividerView                 : (@Composable () -> Unit)? = null,
+    emptyView                   : (@Composable () -> Unit)? = null,
+    loadingProgress             : (@Composable () -> Unit)? = null,
+    paginationProgress          : (@Composable () -> Unit)? = null,
+    onItemClicked               : (item: T, position: Int) -> Unit,
+    onLastReached               : (() -> Unit)? = null,
+    onItemCollapsed             : ((item: T, position: Int) -> Unit)? = null,
+    onItemExpanded              : ((item: T, position: Int, type: ActionRowType) -> Unit)? = null,
+    startActions                : List<Action<T>> = listOf(),
+    endActions                  : List<Action<T>> = listOf(),
     actionBackgroundRadiusCorner: Float = 0f,
-    isLoading: Boolean = false,
-    loadingProgress: (@Composable () -> Unit)? = null,
-    isRefreshing: Boolean = false,
-    onRefresh: (() -> Unit)? = null,
-    paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
-    paddingVertical: Float = PADDING_VERTICAL,
-    paddingHorizontal: Float = PADDING_HORIZONTAL,
-    scrollTo: Int = 0,
+    isLoading                   : Boolean = false,
+    isRefreshing                : Boolean = false,
+    onRefresh                   : (() -> Unit)? = null,
+    paddingBetweenItems         : Float = PADDING_BETWEEN_ITEMS,
+    paddingVertical             : Float = PADDING_VERTICAL,
+    paddingHorizontal           : Float = PADDING_HORIZONTAL,
+    scrollTo                    : Int = 0,
 ) {
 
     if (startActions.size > 3) {
@@ -91,128 +99,6 @@ fun <T> VerticalEasyList(
     if (endActions.size > 3) {
         throw Exception("the end list action length is > 3 it must be 3 or less")
     }
-
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
-    val isArabic = LocalLayoutDirection.current == LayoutDirection.Rtl
-    val isActionClicked = remember { mutableStateOf(false) }
-    val progress: (@Composable () -> Unit) = loadingProgress ?: { CircularProgressIndicator() }
-    val lacyColumn: @Composable () -> Unit = {
-        LazyColumn(
-            modifier = modifier,
-            state = listState,
-            verticalArrangement = Arrangement.spacedBy(paddingBetweenItems.dp),
-            contentPadding = PaddingValues(
-                horizontal = paddingHorizontal.dp,
-                vertical = paddingVertical.dp
-            )
-        ) {
-
-
-            itemsIndexed(list) { index, item ->
-
-
-                ConstraintLayout {
-                    val (actionContainer, swappableItemContainer, divider) = createRefs()
-                    Row(
-                        modifier = Modifier.constrainAs(actionContainer) {
-                            top.linkTo(swappableItemContainer.top)
-                            bottom.linkTo(swappableItemContainer.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-                            height = Dimension.fillToConstraints
-
-
-                        },
-
-                        ) {
-                        ActionsRow(
-                            modifier = Modifier
-                                .weight(1f),
-
-                            item = item,
-                            position = index,
-                            radiusCorner = actionBackgroundRadiusCorner,
-                            actions = startActions,
-                            isActionClicked = {
-                                isActionClicked.value = true
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    isActionClicked.value = false
-                                }, 1000)
-                            }
-                        )
-                        ActionsRow(
-                            modifier = Modifier
-                                .weight(1f),
-
-                            item = item,
-                            position = index,
-                            radiusCorner = actionBackgroundRadiusCorner,
-                            actions = endActions,
-                            isActionClicked = {
-                                isActionClicked.value = true
-                                Handler(Looper.getMainLooper()).postDelayed({
-                                    isActionClicked.value = false
-                                }, 1000)
-                            }
-                        )
-
-                    }
-
-
-                    SwappableItem(
-                        modifier = modifier.constrainAs(swappableItemContainer) {
-                            top.linkTo(parent.top)
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                            end.linkTo(parent.end)
-
-
-                        },
-                        item = item,
-                        mainItem = { view(item) },
-                        isActionClicked = isActionClicked.value,
-                        onCollapsed = { item ->
-                            onItemCollapsed?.invoke(item, index)
-                        },
-                        onExpanded = { type, item ->
-                            onItemExpanded?.invoke(item, index, type)
-                        },
-                        enableLTRSwipe = if (isArabic) endActions.isNotEmpty() else startActions.isNotEmpty(),
-                        enableRTLSwipe = if (isArabic) startActions.isNotEmpty() else endActions.isNotEmpty(),
-                        onItemClicked = {
-                            onItemClicked(it, index)
-                        },
-                    )
-
-                    if (index != list.lastIndex && dividerView != null) {
-                        Surface(modifier = Modifier
-                            .padding(top = paddingBetweenItems.dp)
-                            .constrainAs(divider) {
-                                start.linkTo(parent.start)
-                                end.linkTo(parent.end)
-                                top.linkTo(swappableItemContainer.bottom)
-                            }
-                        ) {
-                            dividerView()
-                        }
-
-                    }
-
-                }
-
-
-            }
-
-
-            coroutineScope.launch {
-                listState.animateScrollToItem(scrollTo)
-            }
-
-
-        }
-    }
-
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
@@ -225,23 +111,203 @@ fun <T> VerticalEasyList(
         ) {
 
             if (isLoading)
-                LoadingView(progress)
+                LoadingView(loadingProgress)
             else{
                 if (list.isNotEmpty()) {
-                    lacyColumn()
+                    LazyList(
+                    modifier                    = modifier,
+                    list                        = list,
+                    view                        = view,
+                    paginationProgress          = paginationProgress,
+                    dividerView                 = dividerView,
+                    startActions                = startActions,
+                    endActions                  = endActions,
+                    onItemClicked               = onItemClicked,
+                    onLastReached               = onLastReached,
+                    onItemCollapsed             = onItemCollapsed,
+                    onItemExpanded              = onItemExpanded,
+                    actionBackgroundRadiusCorner= actionBackgroundRadiusCorner,
+                    paddingBetweenItems         = paddingBetweenItems,
+                    paddingVertical             = paddingVertical,
+                    paddingHorizontal           = paddingHorizontal,
+                    scrollTo                    = scrollTo,
+                    )
                 } else {
                     EmptyView(emptyView)
                 }
             }
 
 
-
-
-
         }
     }
 
 
+
+}
+
+
+
+@ExperimentalComposeUiApi
+@ExperimentalMaterialApi
+@Composable
+fun <T>LazyList(modifier                    : Modifier,
+                list                        : List<T>,
+                view                        : @Composable (T) -> Unit,
+                dividerView                 : (@Composable () -> Unit)? = null,
+                paginationProgress          : (@Composable () -> Unit)? = null,
+                startActions                : List<Action<T>> = listOf(),
+                endActions                  : List<Action<T>> = listOf(),
+                onLastReached               : (() -> Unit)?=null,
+                onItemClicked               : (item: T, position: Int) -> Unit,
+                onItemCollapsed             : ((item: T, position: Int) -> Unit)? = null,
+                onItemExpanded              : ((item: T, position: Int, type: ActionRowType) -> Unit)? = null,
+                actionBackgroundRadiusCorner: Float = 0f,
+                paddingBetweenItems         : Float = PADDING_BETWEEN_ITEMS,
+                paddingVertical             : Float = PADDING_VERTICAL,
+                paddingHorizontal           : Float = PADDING_HORIZONTAL,
+                scrollTo                    : Int = 0,){
+
+
+    val listState       = rememberLazyListState()
+    val coroutineScope  = rememberCoroutineScope()
+    val isRTL           = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val isActionClicked = remember { mutableStateOf(false) }
+    val listStatable    = remember{ mutableStateListOf<T>() }
+    listStatable.addAll(list)
+    val lastItemReached = remember { mutableStateOf(false) }
+    lastItemReached.value = false
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                if (isLastItemVisible(listState) &&  onLastReached != null){
+                    onLastReached()
+                    lastItemReached.value = true
+                }
+
+                return super.onPostFling(consumed, available)
+            }
+        }
+    }
+
+
+    LazyColumn(
+        modifier            = modifier.nestedScroll(nestedScrollConnection),
+        state               = listState,
+        verticalArrangement = Arrangement.spacedBy(paddingBetweenItems.dp),
+        contentPadding      = PaddingValues(
+        horizontal          = paddingHorizontal.dp,
+        vertical            = paddingVertical.dp
+        )
+    ) {
+
+
+        itemsIndexed(listStatable) { index, item ->
+
+            Column(modifier = modifier,
+                   horizontalAlignment = Alignment.CenterHorizontally,
+                   verticalArrangement = Arrangement.Center
+            ) {
+
+                ConstraintLayout {
+                    val (actionContainer, swappableItemContainer, divider) = createRefs()
+                    Row(
+                        modifier = Modifier.constrainAs(actionContainer) {
+                            top    .linkTo(swappableItemContainer.top)
+                            bottom .linkTo(swappableItemContainer.bottom)
+                            start  .linkTo(parent.start)
+                            end    .linkTo(parent.end)
+                            height = Dimension.fillToConstraints
+                        },
+
+                        ) {
+                        ActionsRow(
+                            modifier        = Modifier.weight(1f),
+                            item            = item,
+                            position        = index,
+                            radiusCorner    = actionBackgroundRadiusCorner,
+                            actions         = startActions,
+                            isActionClicked = {
+                                isActionClicked.value = true
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    isActionClicked.value = false
+                                }, 1000)
+                            }
+                        )
+                        ActionsRow(
+                            modifier     = Modifier.weight(1f),
+                            item         = item,
+                            position     = index,
+                            radiusCorner = actionBackgroundRadiusCorner,
+                            actions      = endActions,
+                            isActionClicked = {
+                                isActionClicked.value = true
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    isActionClicked.value = false
+                                }, 1000)
+                            }
+                        )
+
+                    }
+
+
+                    SwappableItem<T>(
+                        modifier = modifier.constrainAs(swappableItemContainer) {
+                            top   .linkTo(parent.top)
+                            bottom.linkTo(parent.bottom)
+                            start .linkTo(parent.start)
+                            end   .linkTo(parent.end)
+                        },
+                        item            = item,
+                        mainItem        = { view(item) },
+                        isActionClicked = isActionClicked.value,
+                        onCollapsed     = { item -> onItemCollapsed?.invoke(item, index) },
+                        onExpanded      = { type, item -> onItemExpanded?.invoke(item, index, type) },
+                        enableLTRSwipe  = if (isRTL) endActions.isNotEmpty() else startActions.isNotEmpty(),
+                        enableRTLSwipe  = if (isRTL) startActions.isNotEmpty() else endActions.isNotEmpty(),
+                        onItemClicked   = { onItemClicked(it, index) },
+                    )
+
+                    if (index != listStatable.lastIndex && dividerView != null) {
+                        Surface(
+                            modifier = Modifier
+                                .padding(top = paddingBetweenItems.dp)
+                                .constrainAs(divider) {
+                                    start.linkTo(parent.start)
+                                    end.linkTo(parent.end)
+                                    top.linkTo(swappableItemContainer.bottom)
+                                }
+                        ) {
+                            dividerView()
+                        }
+
+                    }
+
+                }
+
+                if (lastItemReached.value && index == list.lastIndex){
+                    PaginationLoadingView(paginationProgress)
+                }
+
+            }
+
+
+
+
+        }
+
+
+        coroutineScope.launch {
+            listState.animateScrollToItem(scrollTo)
+        }
+
+
+    }
+
+}
+
+fun isLastItemVisible(lazyListState: LazyListState): Boolean {
+    val lastItem = lazyListState.layoutInfo.visibleItemsInfo.lastOrNull()
+    return lastItem == null || lastItem.size + lastItem.offset <= lazyListState.layoutInfo.viewportEndOffset
 }
 
 /***
@@ -303,10 +369,10 @@ fun <T> HorizontalEasyList(
         }
 
     }
-    val progress: (@Composable () -> Unit) = loadingProgress ?: { CircularProgressIndicator() }
+
     Box(contentAlignment = Alignment.Center) {
         if (isLoading)
-            LoadingView(progress)
+            LoadingView(loadingProgress)
         else {
             if (list.isNotEmpty()) {
                 lazyRow()
@@ -379,7 +445,7 @@ fun <T> GridEasyList(
         }
     }
 
-    val progress: (@Composable () -> Unit) = loadingProgress ?: { CircularProgressIndicator() }
+
 
 
             SwipeRefresh(
@@ -390,7 +456,7 @@ fun <T> GridEasyList(
                 Box(contentAlignment = Alignment.Center) {
 
                     if (isLoading)
-                        LoadingView(progress)
+                        LoadingView(loadingProgress)
                     else{
                         if (list.isNotEmpty()){
                             gridList()
@@ -407,15 +473,37 @@ fun <T> GridEasyList(
 
 }
 
+
 @Composable
-fun LoadingView(view: (@Composable () -> Unit)? = null) {
+fun PaginationLoadingView(view: (@Composable () -> Unit)?=null) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        view?.invoke()
+        if (view != null ){
+            view()
+        }else{
+            CircularProgressIndicator(modifier = Modifier.padding(vertical = 20.dp).size(20.dp), strokeWidth = 2.dp)
+        }
+    }
+}
+
+@Composable
+fun LoadingView(view: (@Composable () -> Unit)?=null) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (view != null ){
+            view()
+        }else{
+            CircularProgressIndicator()
+        }
     }
 }
 
