@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val testList = mutableListOf<Anime>()
-        for (i in 1..5){
+        for (i in 1..1){
             testList.addAll(DEFAULT_LIST.map { it })
         }
 
@@ -191,18 +191,18 @@ fun VerticalList(list: List<Anime>) {
         onItemClicked = { item, position ->
             Log.i("VerticalList", "Clicked")
         },
-        onLastReached = {
-            Log.i("VerticalList", "Last Reached")
-
-            Handler(Looper.getMainLooper()).postDelayed({
-                if (test  == 1) {
-                    listStateAble.addAll(list.subList(0, 6))
-                    test++
-                }else
-                    listStateAble.addAll(emptyList())
-            }, 2000)
-
-        },
+//        onLoadingNextPage = {
+//            Log.i("VerticalList", "Last Reached")
+//
+//            Handler(Looper.getMainLooper()).postDelayed({
+//                if (test  <= 4) {
+//                    listStateAble.addAll(list.subList(0, 3))
+//                    test++
+//                }else
+//                    listStateAble.addAll(emptyList())
+//            }, 200)
+//
+//        },
         view = { AnimeCard(anime = it) },
         emptyView = { emptyView() },
         isLoading = isLoading,
@@ -280,6 +280,9 @@ fun GridList(list: List<Anime>) {
         view = { AnimeGridCard(anime = it) },
         emptyView = { emptyView() },
         isLoading = isLoading,
+        onRefresh = {
+
+        },
         paddingBetweenItems = 8f,
         paddingVertical = 8f,
         columnCount = 2,
@@ -288,13 +291,7 @@ fun GridList(list: List<Anime>) {
             Log.i("Mshari"," item Clicked")
 
         },
-        onLastReached = {
-            Log.i("VerticalList", "Last Reached")
 
-            Handler(Looper.getMainLooper()).postDelayed({
-                listStateAble.addAll(list.subList(0, 6))
-            }, 2000)
-        }
 
     )
 

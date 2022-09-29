@@ -2,9 +2,6 @@ package com.android.magic_recyclerview.component.magic_recyclerview
 
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
-import androidx.compose.animation.core.FloatExponentialDecaySpec
-import androidx.compose.animation.core.animateDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,9 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
@@ -38,7 +33,6 @@ import com.android.magic_recyclerview.component.swippable_item.SwappableItem
 import com.android.magic_recyclerview.model.Action
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.launch
 
 /***
@@ -78,7 +72,7 @@ fun <T> VerticalEasyList(
     loadingProgress             : (@Composable () -> Unit)? = null,
     paginationProgress          : (@Composable () -> Unit)? = null,
     onItemClicked               : (item: T, position: Int) -> Unit,
-    onLastReached               : (() -> Unit)? = null,
+    onLoadingNextPage           : (() -> Unit)? = null,
     onItemCollapsed             : ((item: T, position: Int) -> Unit)? = null,
     onItemExpanded              : ((item: T, position: Int, type: ActionRowType) -> Unit)? = null,
     startActions                : List<Action<T>> = listOf(),
@@ -124,7 +118,7 @@ fun <T> VerticalEasyList(
                     startActions                = startActions,
                     endActions                  = endActions,
                     onItemClicked               = onItemClicked,
-                    onLastReached               = onLastReached,
+                    onLoadingNextPage           = onLoadingNextPage,
                     onItemCollapsed             = onItemCollapsed,
                     onItemExpanded              = onItemExpanded,
                     actionBackgroundRadiusCorner= actionBackgroundRadiusCorner,
@@ -158,7 +152,7 @@ fun <T>LazyList(modifier                    : Modifier,
                 paginationProgress          : (@Composable () -> Unit)? = null,
                 startActions                : List<Action<T>> = listOf(),
                 endActions                  : List<Action<T>> = listOf(),
-                onLastReached               : (() -> Unit)?=null,
+                onLoadingNextPage           : (() -> Unit)?   =null,
                 onItemClicked               : (item: T, position: Int) -> Unit,
                 onItemCollapsed             : ((item: T, position: Int) -> Unit)? = null,
                 onItemExpanded              : ((item: T, position: Int, type: ActionRowType) -> Unit)? = null,
@@ -173,27 +167,9 @@ fun <T>LazyList(modifier                    : Modifier,
     val coroutineScope  = rememberCoroutineScope()
     val isRTL           = LocalLayoutDirection.current == LayoutDirection.Rtl
     val isActionClicked = remember { mutableStateOf(false) }
-    val listStatable    = remember{ mutableStateListOf<T>() }
-    listStatable.addAll(list)
     val lastItemReached = remember { mutableStateOf(false) }
-    lastItemReached.value = false
-
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                if (isLastItemVisible(listState) &&  onLastReached != null){
-                    onLastReached()
-                    lastItemReached.value = true
-                }
-
-                return super.onPostFling(consumed, available)
-            }
-        }
-    }
-
-
     LazyColumn(
-        modifier            = modifier.nestedScroll(nestedScrollConnection),
+        modifier            = modifier,
         state               = listState,
         verticalArrangement = Arrangement.spacedBy(paddingBetweenItems.dp),
         contentPadding      = PaddingValues(
@@ -203,12 +179,15 @@ fun <T>LazyList(modifier                    : Modifier,
     ) {
 
 
-        itemsIndexed(listStatable) { index, item ->
+        itemsIndexed(list) { index, item ->
 
-            Column(modifier = modifier,
-                   horizontalAlignment = Alignment.CenterHorizontally,
-                   verticalArrangement = Arrangement.Center
-            ) {
+            if (isLastItemVisible(listState) &&  onLoadingNextPage != null && list.isNotEmpty()){
+                lastItemReached.value = true
+                onLoadingNextPage()
+            }else{
+                lastItemReached.value = false
+            }
+
 
                 ConstraintLayout {
                     val (actionContainer, swappableItemContainer, divider) = createRefs()
@@ -269,7 +248,7 @@ fun <T>LazyList(modifier                    : Modifier,
                         onItemClicked   = { onItemClicked(it, index) },
                     )
 
-                    if (index != listStatable.lastIndex && dividerView != null) {
+                    if (index != list.lastIndex && dividerView != null) {
                         Surface(
                             modifier = Modifier
                                 .padding(top = paddingBetweenItems.dp)
@@ -286,15 +265,19 @@ fun <T>LazyList(modifier                    : Modifier,
 
                 }
 
-                if (lastItemReached.value && index == listStatable.lastIndex){
-                    PaginationLoadingView(paginationProgress)
-                }
 
+
+
+
+
+
+
+        }
+
+        item {
+            if (lastItemReached.value && list.isNotEmpty()){
+                PaginationLoadingView(paginationProgress)
             }
-
-
-
-
         }
 
 
@@ -419,9 +402,7 @@ fun <T> GridEasyList(
     onRefresh: (() -> Unit)? = null,
     isLoading: Boolean = false,
     loadingProgress: (@Composable () -> Unit)? = null,
-    paginationProgress : (@Composable () -> Unit)? = null,
     onItemClicked               : (item: T, position: Int) -> Unit,
-    onLastReached               : (() -> Unit)? = null,
     scrollTo: Int = 0,
 ) {
 
@@ -445,9 +426,7 @@ fun <T> GridEasyList(
                                 paddingVertical = paddingVertical,
                                 paddingHorizontal = paddingHorizontal,
                                 columnCount = columnCount,
-                                paginationProgress = paginationProgress,
                                 onItemClicked = onItemClicked,
-                                onLastReached = onLastReached,
                                 scrollTo = scrollTo
                             )
 
@@ -466,38 +445,20 @@ fun <T> GridEasyList(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun <T>LazyGridList(   modifier: Modifier = Modifier,
-                       list: List<T>,
-                       view: @Composable (T) -> Unit,
-                       paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
-                       paddingVertical: Float = PADDING_VERTICAL,
-                       paddingHorizontal: Float = PADDING_HORIZONTAL,
-                       columnCount: Int = COLUMN_COUNT,
-                       paginationProgress : (@Composable () -> Unit)? = null,
-                       onItemClicked               : (item: T, position: Int) -> Unit,
-                       onLastReached               : (() -> Unit)? = null,
-                       scrollTo: Int = 0,){
+fun <T>LazyGridList(modifier: Modifier = Modifier,
+                    list: List<T>,
+                    view: @Composable (T) -> Unit,
+                    paddingBetweenItems: Float = PADDING_BETWEEN_ITEMS,
+                    paddingVertical: Float = PADDING_VERTICAL,
+                    paddingHorizontal: Float = PADDING_HORIZONTAL,
+                    columnCount: Int = COLUMN_COUNT,
+                    onItemClicked               : (item: T, position: Int) -> Unit,
+                    scrollTo: Int = 0,){
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val listStatable    = remember{ mutableStateListOf<T>() }
-    listStatable.addAll(list)
-    val lastItemReached = remember { mutableStateOf(false) }
-    lastItemReached.value = false
 
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                if (isLastItemVisible(listState) &&  onLastReached != null){
-                    onLastReached()
-                    lastItemReached.value = true
-                }
-
-                return super.onPostFling(consumed, available)
-            }
-        }
-    }
     LazyVerticalGrid(
-        modifier = modifier.nestedScroll(nestedScrollConnection),
+        modifier = modifier,
         state = listState,
         cells = GridCells.Fixed(columnCount),
         verticalArrangement = Arrangement.spacedBy(paddingBetweenItems.dp),
@@ -507,20 +468,15 @@ fun <T>LazyGridList(   modifier: Modifier = Modifier,
             horizontal = paddingHorizontal.dp
         )
     ) {
-        itemsIndexed(listStatable) { index, item ->
-            Column(modifier = modifier,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+
+
+        itemsIndexed(list) { index, item ->
+
+            Box(modifier = modifier.clickable {
+                onItemClicked(item, index)
+            }, contentAlignment = Alignment.Center,
             ) {
-                Box(modifier = modifier.clickable {
-                    onItemClicked(item, index)
-                }, contentAlignment = Alignment.Center,
-                ) {
-                    view(item)
-                }
-                if (lastItemReached.value && index == listStatable.lastIndex){
-                    PaginationLoadingView(paginationProgress)
-                }
+                view(item)
             }
 
 
