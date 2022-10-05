@@ -109,11 +109,7 @@ fun VerticalList(list: List<Anime>) {
     var listItem by remember { mutableStateOf(list) }
     var isLoading by remember { mutableStateOf(true) }
     var isRefreshing by remember { mutableStateOf(false) }
-    val listStateAble = remember { mutableStateListOf<Anime>() }
-    var test by remember { mutableStateOf(1) }
-    LaunchedEffect(key1 = Unit ){
-        listStateAble.addAll(list)
-    }
+
 
 
     val deleteAction1 = Action<Anime>(
@@ -187,22 +183,11 @@ fun VerticalList(list: List<Anime>) {
 
     VerticalEasyList(
         modifier = Modifier,
-        list = listStateAble,
+        list = listItem,
         onItemClicked = { item, position ->
-            Log.i("VerticalList", "Clicked")
-        },
-        onLastReached = {
-            Log.i("VerticalList", "Last Reached")
-
-            Handler(Looper.getMainLooper()).postDelayed({
-                if (test  == 1) {
-                    listStateAble.addAll(list.subList(0, 6))
-                    test++
-                }else
-                    listStateAble.addAll(emptyList())
-            }, 2000)
 
         },
+
         view = { AnimeCard(anime = it) },
         emptyView = { emptyView() },
         isLoading = isLoading,
@@ -271,10 +256,7 @@ fun HorizontalList(list: List<Anime>) {
 fun GridList(list: List<Anime>) {
     val listItem by remember { mutableStateOf(list) }
     var isLoading by remember { mutableStateOf(true) }
-    val listStateAble = remember { mutableStateListOf<Anime>() }
-    LaunchedEffect(key1 = Unit ){
-        listStateAble.addAll(list)
-    }
+
     GridEasyList(
         list = listItem,
         view = { AnimeGridCard(anime = it) },
@@ -285,16 +267,9 @@ fun GridList(list: List<Anime>) {
         columnCount = 2,
         scrollTo = 0,
         onItemClicked = {item,position->
-            Log.i("Mshari"," item Clicked")
 
         },
-        onLastReached = {
-            Log.i("VerticalList", "Last Reached")
 
-            Handler(Looper.getMainLooper()).postDelayed({
-                listStateAble.addAll(list.subList(0, 6))
-            }, 2000)
-        }
 
     )
 

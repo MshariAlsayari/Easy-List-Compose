@@ -76,9 +76,7 @@ fun <T> VerticalEasyList(
     dividerView                 : (@Composable () -> Unit)? = null,
     emptyView                   : (@Composable () -> Unit)? = null,
     loadingProgress             : (@Composable () -> Unit)? = null,
-    paginationProgress          : (@Composable () -> Unit)? = null,
     onItemClicked               : (item: T, position: Int) -> Unit,
-    onLastReached               : (() -> Unit)? = null,
     onItemCollapsed             : ((item: T, position: Int) -> Unit)? = null,
     onItemExpanded              : ((item: T, position: Int, type: ActionRowType) -> Unit)? = null,
     startActions                : List<Action<T>> = listOf(),
@@ -119,12 +117,10 @@ fun <T> VerticalEasyList(
                     modifier                    = modifier,
                     list                        = list,
                     view                        = view,
-                    paginationProgress          = paginationProgress,
                     dividerView                 = dividerView,
                     startActions                = startActions,
                     endActions                  = endActions,
                     onItemClicked               = onItemClicked,
-                    onLastReached               = onLastReached,
                     onItemCollapsed             = onItemCollapsed,
                     onItemExpanded              = onItemExpanded,
                     actionBackgroundRadiusCorner= actionBackgroundRadiusCorner,
@@ -173,27 +169,11 @@ fun <T>LazyList(modifier                    : Modifier,
     val coroutineScope  = rememberCoroutineScope()
     val isRTL           = LocalLayoutDirection.current == LayoutDirection.Rtl
     val isActionClicked = remember { mutableStateOf(false) }
-    val listStatable    = remember{ mutableStateListOf<T>() }
-    listStatable.addAll(list)
-    val lastItemReached = remember { mutableStateOf(false) }
-    lastItemReached.value = false
 
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                if (isLastItemVisible(listState) &&  onLastReached != null){
-                    onLastReached()
-                    lastItemReached.value = true
-                }
-
-                return super.onPostFling(consumed, available)
-            }
-        }
-    }
 
 
     LazyColumn(
-        modifier            = modifier.nestedScroll(nestedScrollConnection),
+        modifier            = modifier,
         state               = listState,
         verticalArrangement = Arrangement.spacedBy(paddingBetweenItems.dp),
         contentPadding      = PaddingValues(
@@ -203,8 +183,7 @@ fun <T>LazyList(modifier                    : Modifier,
     ) {
 
 
-        itemsIndexed(listStatable) { index, item ->
-
+        itemsIndexed(list) {  index , item ->
             Column(modifier = modifier,
                    horizontalAlignment = Alignment.CenterHorizontally,
                    verticalArrangement = Arrangement.Center
@@ -269,7 +248,7 @@ fun <T>LazyList(modifier                    : Modifier,
                         onItemClicked   = { onItemClicked(it, index) },
                     )
 
-                    if (index != listStatable.lastIndex && dividerView != null) {
+                    if (index != list.lastIndex && dividerView != null) {
                         Surface(
                             modifier = Modifier
                                 .padding(top = paddingBetweenItems.dp)
@@ -286,9 +265,7 @@ fun <T>LazyList(modifier                    : Modifier,
 
                 }
 
-                if (lastItemReached.value && index == listStatable.lastIndex){
-                    PaginationLoadingView(paginationProgress)
-                }
+
 
             }
 
@@ -419,9 +396,7 @@ fun <T> GridEasyList(
     onRefresh: (() -> Unit)? = null,
     isLoading: Boolean = false,
     loadingProgress: (@Composable () -> Unit)? = null,
-    paginationProgress : (@Composable () -> Unit)? = null,
     onItemClicked               : (item: T, position: Int) -> Unit,
-    onLastReached               : (() -> Unit)? = null,
     scrollTo: Int = 0,
 ) {
 
@@ -445,9 +420,7 @@ fun <T> GridEasyList(
                                 paddingVertical = paddingVertical,
                                 paddingHorizontal = paddingHorizontal,
                                 columnCount = columnCount,
-                                paginationProgress = paginationProgress,
                                 onItemClicked = onItemClicked,
-                                onLastReached = onLastReached,
                                 scrollTo = scrollTo
                             )
 
@@ -473,31 +446,13 @@ fun <T>LazyGridList(   modifier: Modifier = Modifier,
                        paddingVertical: Float = PADDING_VERTICAL,
                        paddingHorizontal: Float = PADDING_HORIZONTAL,
                        columnCount: Int = COLUMN_COUNT,
-                       paginationProgress : (@Composable () -> Unit)? = null,
                        onItemClicked               : (item: T, position: Int) -> Unit,
-                       onLastReached               : (() -> Unit)? = null,
                        scrollTo: Int = 0,){
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val listStatable    = remember{ mutableStateListOf<T>() }
-    listStatable.addAll(list)
-    val lastItemReached = remember { mutableStateOf(false) }
-    lastItemReached.value = false
 
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-                if (isLastItemVisible(listState) &&  onLastReached != null){
-                    onLastReached()
-                    lastItemReached.value = true
-                }
-
-                return super.onPostFling(consumed, available)
-            }
-        }
-    }
     LazyVerticalGrid(
-        modifier = modifier.nestedScroll(nestedScrollConnection),
+        modifier = modifier,
         state = listState,
         cells = GridCells.Fixed(columnCount),
         verticalArrangement = Arrangement.spacedBy(paddingBetweenItems.dp),
@@ -507,7 +462,7 @@ fun <T>LazyGridList(   modifier: Modifier = Modifier,
             horizontal = paddingHorizontal.dp
         )
     ) {
-        itemsIndexed(listStatable) { index, item ->
+        itemsIndexed(list) { index, item ->
             Column(modifier = modifier,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -518,9 +473,7 @@ fun <T>LazyGridList(   modifier: Modifier = Modifier,
                 ) {
                     view(item)
                 }
-                if (lastItemReached.value && index == listStatable.lastIndex){
-                    PaginationLoadingView(paginationProgress)
-                }
+
             }
 
 
@@ -576,8 +529,8 @@ fun LoadingView(view: (@Composable () -> Unit)?=null) {
 fun EmptyView(view: (@Composable () -> Unit)? = null) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .fillMaxWidth()
+            .padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
