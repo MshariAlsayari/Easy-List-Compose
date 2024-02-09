@@ -187,7 +187,9 @@ fun VerticalList(list: List<Anime>) {
         onItemClicked = { item, position ->
 
         },
+        onItemDoubleClicked = { item, position ->
 
+        },
         view = { AnimeCard(anime = it) },
         emptyView = { emptyView() },
         isLoading = isLoading,

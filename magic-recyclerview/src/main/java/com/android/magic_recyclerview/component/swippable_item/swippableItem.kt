@@ -4,7 +4,9 @@ package com.android.magic_recyclerview.component.swippable_item
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material.*
@@ -28,7 +30,9 @@ import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun <T> SwappableItem(
     modifier: Modifier = Modifier,
@@ -38,6 +42,7 @@ fun <T> SwappableItem(
     enableRTLSwipe: Boolean = false,
     isActionClicked: Boolean = false,
     onItemClicked: (item: T) -> Unit,
+    onItemDoubleClicked: (item: T) -> Unit,
     animationSpec: AnimationSpec<Float> = tween(Constants.SWIPE_ANIMATION_DURATION),
     thresholds: (from: SwipeDirection, to: SwipeDirection) -> ThresholdConfig = { _, _ ->
         FractionalThreshold(
@@ -121,15 +126,31 @@ fun <T> SwappableItem(
                 thresholds = thresholds,
                 velocityThreshold = velocityThreshold
             )
-            .clickable {
-                coroutineScope.launch {
-                    if (swappableState.currentValue == SwipeDirection.NON ){
-                        onItemClicked(item)
-                    }
-                    swappableState.animateTo(SwipeDirection.NON)
+            .combinedClickable (
+                onClick = {
+                    coroutineScope.launch {
+                        if (swappableState.currentValue == SwipeDirection.NON ){
+                            onItemClicked(item)
+                        }
+                        swappableState.animateTo(SwipeDirection.NON)
 
+                    }
+                },
+                onDoubleClick = {
+                    coroutineScope.launch {
+                        if (swappableState.currentValue == SwipeDirection.NON ){
+                            onItemDoubleClicked(item)
+                        }
+                        swappableState.animateTo(SwipeDirection.NON)
+
+                    }
                 }
-            }
+
+            )
+
+
+
+
     ) {
 
         if ((swappableState.currentValue == SwipeDirection.LEFT_TO_RIGHT || swappableState.currentValue == SwipeDirection.RIGHT_TO_LEFT) && !swappableState.isAnimationRunning && swappableItemOffset.value.absoluteValue == middleSwipeItem.value) {
